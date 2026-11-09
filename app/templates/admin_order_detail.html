@@ -1,0 +1,52 @@
+{% extends "admin_base.html" %}
+{% block title %}Đơn #{{ data.order.order_id }}{% endblock %}
+
+{% block page %}
+{% set o = data.order %}
+<h1>Đơn hàng #{{ o.order_id }}
+    <span class="badge {{ o.order_status.value }}">{{ STATUS_VI[o.order_status.value] }}</span></h1>
+
+<div class="adm-card">
+    <table class="adm-table" style="max-width:640px;">
+        <tr><th>Khách hàng</th><td>{{ data.customer_name }}</td></tr>
+        <tr><th>Điện thoại</th><td>{{ data.customer_phone }}</td></tr>
+        <tr><th>Email</th><td>{{ data.customer_email }}</td></tr>
+        <tr><th>Địa chỉ giao</th><td>{{ o.shipping_address }}</td></tr>
+        <tr><th>Ngày đặt</th><td>{{ o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date }}</td></tr>
+        <tr><th>Ngày giao</th><td>{{ o.shipping_date.strftime('%d/%m/%Y %H:%M') if o.shipping_date else '—' }}</td></tr>
+        <tr><th>Thanh toán</th>
+            <td>{{ o.payment_method.value }} · {{ PAYMENT_VI[o.payment_status.value] }}
+                {% if o.payment_date %}({{ o.payment_date.strftime('%d/%m/%Y %H:%M') }}){% endif %}</td></tr>
+    </table>
+</div>
+
+<div class="adm-card">
+    <h3>Sản phẩm trong đơn</h3>
+    <table class="adm-table">
+        <tr><th>Sản phẩm</th><th class="num">Đơn giá hiện tại</th><th class="num">Số lượng</th><th class="num">Thành tiền</th></tr>
+        {% for it in o.items %}
+        <tr>
+            <td>{{ it.product_name }}</td>
+            <td class="num">{{ '{:,.0f}'.format(it.unit_price) }} ₫</td>
+            <td class="num">{{ it.quantity }}</td>
+            <td class="num">{{ '{:,.0f}'.format(it.subtotal) }} ₫</td>
+        </tr>
+        {% endfor %}
+        <tr><td colspan="3" class="num"><strong>Tổng tiền đơn</strong></td>
+            <td class="num"><strong>{{ '{:,.0f}'.format(o.total_amount) }} ₫</strong></td></tr>
+    </table>
+    <p style="color:#666; font-size:13px;">Đơn giá lấy theo giá sản phẩm hiện tại; tổng tiền đơn là số đã lưu khi đặt hàng.</p>
+</div>
+
+<div>
+    {% for s in data.actions %}
+    <form class="inline" method="POST" action="{{ url_for('admin.order_status', order_id=o.order_id) }}">
+        <input type="hidden" name="new_status" value="{{ s }}">
+        <button class="adm-btn {{ 'red' if s == 'Cancelled' else 'green' if s == 'Completed' else '' }}" type="submit"
+                {% if s == 'Cancelled' %}onclick="return confirm('Hủy đơn này? Hàng sẽ được hoàn lại kho.')"{% endif %}>
+            {{ ACTION_VI[s] }}</button>
+    </form>
+    {% endfor %}
+    <a class="adm-btn gray" href="{{ url_for('admin.orders') }}">← Danh sách đơn</a>
+</div>
+{% endblock %}

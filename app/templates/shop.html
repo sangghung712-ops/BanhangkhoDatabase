@@ -1,0 +1,57 @@
+{% extends "customer_base.html" %}
+{% block title %}Sản phẩm{% endblock %}
+
+{% block page %}
+<style>
+    .filter { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+    .filter input, .filter select { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+    .grid { display: grid; gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .p-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+    .p-cat { font-size: 13px; color: #666; }
+    .p-price { color: #dc2626; font-weight: 700; margin: 8px 0 2px; font-size: 18px; }
+    .p-stock { font-size: 13px; color: #666; margin-bottom: 10px; }
+    .add-row { display: flex; gap: 6px; }
+    .add-row input { width: 60px; padding: 6px; border: 1px solid #ccc; border-radius: 6px; }
+</style>
+
+<h1>Sản phẩm</h1>
+
+<form class="filter" method="GET" action="{{ url_for('customer.shop') }}">
+    <input type="text" name="q" placeholder="Tìm sản phẩm..." value="{{ keyword }}">
+    <select name="category">
+        <option value="">Tất cả danh mục</option>
+        {% for c in categories %}
+            <option value="{{ c }}" {% if c == category %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+    <button class="cus-btn" type="submit">Lọc</button>
+    {% if keyword or category %}
+        <a class="cus-btn gray" href="{{ url_for('customer.shop') }}">Xóa lọc</a>
+    {% endif %}
+</form>
+
+{% if products %}
+<div class="grid">
+    {% for p in products %}
+    <div class="cus-card">
+        <div class="p-name">{{ p.product_name }}</div>
+        <div class="p-cat">{{ p.category }}</div>
+        <div class="p-price">{{ '{:,.0f}'.format(p.price) }} ₫</div>
+        <div class="p-stock">
+            {% if p.quantity > 0 %}Còn {{ p.quantity }} sản phẩm{% else %}Hết hàng{% endif %}
+        </div>
+        <form class="add-row" method="POST"
+              action="{{ url_for('customer.cart_add', product_id=p.product_id) }}">
+            <input type="number" name="quantity" value="1" min="1" max="{{ p.quantity }}"
+                   {% if p.quantity == 0 %}disabled{% endif %}>
+            <button class="cus-btn" type="submit"
+                    {% if p.quantity == 0 %}disabled{% endif %}>Thêm vào giỏ</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p>Không tìm thấy sản phẩm nào.</p>
+{% endif %}
+{% endblock %}

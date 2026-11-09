@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .cus-nav { display: flex; align-items: center; gap: 16px; padding: 12px 20px;
+               background: #1f2937; color: #fff; flex-wrap: wrap; }
+    .cus-nav a { color: #fff; text-decoration: none; }
+    .cus-nav .brand { font-weight: 700; font-size: 18px; margin-right: auto; }
+    .cus-nav .badge { background: #ef4444; border-radius: 10px; padding: 1px 8px;
+                      font-size: 12px; margin-left: 4px; }
+    .cus-wrap { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+    .cus-card { background: #fff; color: #222; border: 1px solid #ddd;
+                border-radius: 8px; padding: 14px; }
+    .cus-btn { background: #2563eb; color: #fff; border: 0; border-radius: 6px;
+               padding: 8px 14px; cursor: pointer; text-decoration: none;
+               display: inline-block; }
+    .cus-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    .cus-btn.danger { background: #dc2626; }
+    .cus-btn.gray { background: #6b7280; }
+</style>
+
+<nav class="cus-nav">
+    <a class="brand" href="{{ url_for('customer.shop') }}">Cửa hàng</a>
+    <a href="{{ url_for('customer.shop') }}">Sản phẩm</a>
+    <a href="{{ url_for('customer.cart') }}">Giỏ hàng
+        {% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}
+    </a>
+    <span>Xin chào, {{ session.get('username') }}</span>
+    <a href="{{ url_for('auth.logout') }}">Đăng xuất</a>
+</nav>
+
+<div class="cus-wrap">
+    {% block page %}{% endblock %}
+</div>
+{% endblock %}

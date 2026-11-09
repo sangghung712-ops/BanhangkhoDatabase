@@ -1,0 +1,53 @@
+{% extends "admin_base.html" %}
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block page %}
+<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <h1 style="margin-right:auto;">Đơn hàng</h1>
+    <form class="inline" method="GET" action="{{ url_for('admin.orders') }}">
+        <select class="adm-input" name="status" onchange="this.form.submit()">
+            <option value="">Tất cả trạng thái</option>
+            {% for k, v in STATUS_VI.items() %}
+                <option value="{{ k }}" {% if k == status %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<div class="adm-card" style="margin-top:14px; overflow-x:auto;">
+{% if rows %}
+<table class="adm-table">
+    <tr>
+        <th>Mã</th><th>Ngày đặt</th><th>Khách hàng</th><th class="num">Tổng tiền</th>
+        <th>Thanh toán</th><th>Trạng thái</th><th>Thao tác</th>
+    </tr>
+    {% for r in rows %}
+    {% set o = r.order %}
+    <tr>
+        <td><a href="{{ url_for('admin.order_detail', order_id=o.order_id) }}">#{{ o.order_id }}</a></td>
+        <td>{{ o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date }}</td>
+        <td>{{ r.customer_name }}<br><small>{{ r.customer_phone }}</small></td>
+        <td class="num">{{ '{:,.0f}'.format(o.total_amount) }} ₫</td>
+        <td>{{ o.payment_method.value }}<br><small>{{ PAYMENT_VI[o.payment_status.value] }}</small></td>
+        <td><span class="badge {{ o.order_status.value }}">{{ STATUS_VI[o.order_status.value] }}</span></td>
+        <td style="white-space:nowrap;">
+            {% for s in r.actions %}
+            <form class="inline" method="POST" action="{{ url_for('admin.order_status', order_id=o.order_id) }}">
+                <input type="hidden" name="new_status" value="{{ s }}">
+                <button class="adm-btn sm {{ 'red' if s == 'Cancelled' else 'green' if s == 'Completed' else '' }}"
+                        type="submit"
+                        {% if s == 'Cancelled' %}onclick="return confirm('Hủy đơn #{{ o.order_id }}? Hàng sẽ được hoàn lại kho.')"{% endif %}>
+                    {{ ACTION_VI[s] }}</button>
+            </form>
+            {% else %}
+                <small>—</small>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+    <p>Không có đơn hàng nào.</p>
+{% endif %}
+</div>
+{% endblock %}
