@@ -2,54 +2,61 @@
 {% block title %}Quản lý sản phẩm{% endblock %}
 
 {% block page %}
-<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-    <h1 style="margin-right:auto;">Sản phẩm</h1>
-    <form class="inline" method="GET" action="{{ url_for('admin.products') }}">
-        <input class="adm-input" type="text" name="q" placeholder="Tìm tên hoặc danh mục..." value="{{ keyword }}">
-        <button class="adm-btn gray" type="submit">Tìm</button>
+<div class="page-header">
+    <h1>Sản phẩm</h1>
+    <form class="inline-form" method="GET" action="{{ url_for('admin.products') }}">
+        <input class="input" type="text" name="q" placeholder="Tìm tên hoặc danh mục..." value="{{ keyword }}">
+        <button class="btn btn-secondary" type="submit">Tìm</button>
     </form>
-    <a class="adm-btn green" href="{{ url_for('admin.product_new') }}">+ Thêm sản phẩm</a>
+    <a class="btn btn-success" href="{{ url_for('admin.product_new') }}">+ Thêm sản phẩm</a>
 </div>
 
-<div class="adm-card" style="margin-top:14px; overflow-x:auto;">
+<div class="card">
 {% if products %}
-<table class="adm-table">
-    <tr>
-        <th>ID</th><th>Tên</th><th>Danh mục</th><th class="num">Giá</th>
-        <th class="num">Tồn kho</th><th>Trạng thái</th><th>Cập nhật tồn kho</th><th></th>
-    </tr>
+<div class="table-wrap">
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th><th>Tên</th><th>Danh mục</th><th class="num">Giá</th>
+            <th class="num">Tồn kho</th><th>Trạng thái</th><th>Cập nhật tồn kho</th><th></th>
+        </tr>
+    </thead>
+    <tbody>
     {% for p in products %}
     <tr>
-        <td>{{ p.product_id }}</td>
-        <td>{{ p.product_name }}</td>
+        <td class="muted">{{ p.product_id }}</td>
+        <td><strong>{{ p.product_name }}</strong></td>
         <td>{{ p.category }}</td>
         <td class="num">{{ '{:,.0f}'.format(p.price) }} ₫</td>
         <td class="num">{{ p.quantity }}</td>
-        <td><span class="badge {{ p.product_status.value }}">
-            {{ 'Đang bán' if p.is_active() else 'Ngừng bán' }}</span></td>
+        <td><span class="badge {{ p.product_status.value }}">{{ 'Đang bán' if p.is_active() else 'Ngừng bán' }}</span></td>
         <td>
-            <form class="inline" method="POST" action="{{ url_for('admin.product_stock', product_id=p.product_id) }}">
-                <input class="adm-input" type="number" name="quantity" min="0" required style="width:80px;">
-                <button class="adm-btn sm" type="submit" name="mode" value="add">Nhập thêm</button>
-                <button class="adm-btn gray sm" type="submit" name="mode" value="set">Đặt lại</button>
+            <form class="inline-form" method="POST" action="{{ url_for('admin.product_stock', product_id=p.product_id) }}">
+                <input class="input input-sm w-80" type="number" name="quantity" min="0" required>
+                <button class="btn btn-sm" type="submit" name="mode" value="add">Nhập thêm</button>
+                <button class="btn btn-secondary btn-sm" type="submit" name="mode" value="set">Đặt lại</button>
             </form>
         </td>
-        <td style="white-space:nowrap;">
-            <a class="adm-btn sm" href="{{ url_for('admin.product_edit', product_id=p.product_id) }}">Sửa</a>
-            <form class="inline" method="POST" action="{{ url_for('admin.product_toggle', product_id=p.product_id) }}">
-                {% if p.is_active() %}
-                    <button class="adm-btn red sm" type="submit"
-                            onclick="return confirm('Ngừng kinh doanh sản phẩm này?')">Ngừng bán</button>
-                {% else %}
-                    <button class="adm-btn green sm" type="submit">Bán lại</button>
-                {% endif %}
-            </form>
+        <td>
+            <div class="actions">
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.product_edit', product_id=p.product_id) }}">Sửa</a>
+                <form class="inline-form" method="POST" action="{{ url_for('admin.product_toggle', product_id=p.product_id) }}">
+                    {% if p.is_active() %}
+                        <button class="btn btn-danger btn-sm" type="submit"
+                                onclick="return confirm('Ngừng kinh doanh sản phẩm này?')">Ngừng bán</button>
+                    {% else %}
+                        <button class="btn btn-success btn-sm" type="submit">Bán lại</button>
+                    {% endif %}
+                </form>
+            </div>
         </td>
     </tr>
     {% endfor %}
+    </tbody>
 </table>
+</div>
 {% else %}
-    <p>Chưa có sản phẩm nào.</p>
+    <p class="muted">Chưa có sản phẩm nào.</p>
 {% endif %}
 </div>
 {% endblock %}

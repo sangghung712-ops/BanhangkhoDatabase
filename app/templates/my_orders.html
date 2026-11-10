@@ -1,0 +1,39 @@
+{% extends "customer_base.html" %}
+{% block title %}Đơn hàng của tôi{% endblock %}
+
+{% block page %}
+<div class="page-header"><h1>Đơn hàng của tôi</h1></div>
+
+{% if orders %}
+<div class="card">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th><th>Ngày đặt</th><th class="num">Tổng tiền</th>
+                    <th>Thanh toán</th><th>Trạng thái</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for o in orders %}
+            <tr>
+                <td><strong>#{{ o.order_id }}</strong></td>
+                <td>{{ o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date }}</td>
+                <td class="num">{{ '{:,.0f}'.format(o.total_amount) }} ₫</td>
+                <td>{{ PAYMENT_VI[o.payment_status.value] }}</td>
+                <td><span class="badge {{ o.order_status.value }}">{{ STATUS_VI[o.order_status.value] }}</span></td>
+                <td class="right"><a class="btn btn-secondary btn-sm"
+                    href="{{ url_for('customer.order_detail', order_id=o.order_id) }}">Xem</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty">
+    <p>Bạn chưa có đơn hàng nào.</p>
+    <a class="btn" href="{{ url_for('customer.shop') }}">Đi mua sắm</a>
+</div>
+{% endif %}
+{% endblock %}

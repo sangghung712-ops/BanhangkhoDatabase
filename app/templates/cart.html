@@ -2,43 +2,51 @@
 {% block title %}Giỏ hàng{% endblock %}
 
 {% block page %}
-<style>
-    .cart-table { width: 100%; border-collapse: collapse; }
-    .cart-table th, .cart-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-    .cart-table td.num, .cart-table th.num { text-align: right; }
-    .cart-total { text-align: right; font-size: 20px; font-weight: 700; margin: 16px 0; }
-</style>
-
-<h1>Giỏ hàng</h1>
+<div class="page-header"><h1>Giỏ hàng</h1></div>
 
 {% if items %}
-<div class="cus-card">
-    <table class="cart-table">
-        <tr>
-            <th>Sản phẩm</th><th class="num">Đơn giá</th>
-            <th class="num">Số lượng</th><th class="num">Thành tiền</th><th></th>
-        </tr>
-        {% for it in items %}
-        <tr>
-            <td>{{ it.product.product_name }}</td>
-            <td class="num">{{ '{:,.0f}'.format(it.product.price) }} ₫</td>
-            <td class="num">{{ it.quantity }}</td>
-            <td class="num">{{ '{:,.0f}'.format(it.subtotal) }} ₫</td>
-            <td>
-                <form method="POST"
-                      action="{{ url_for('customer.cart_remove', product_id=it.product.product_id) }}">
-                    <button class="cus-btn danger" type="submit">Xóa</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    <div class="cart-total">Tổng cộng: {{ '{:,.0f}'.format(total) }} ₫</div>
-    <a class="cus-btn gray" href="{{ url_for('customer.shop') }}">Tiếp tục mua</a>
-    <button class="cus-btn" type="button" disabled title="Sẽ làm ở bước tiếp theo">Đặt hàng</button>
+<div class="card">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th><th class="num">Đơn giá</th>
+                    <th class="num">Số lượng</th><th class="num">Thành tiền</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for it in items %}
+                <tr>
+                    <td><strong>{{ it.product.product_name }}</strong><br>
+                        <span class="muted">{{ it.product.category }}</span></td>
+                    <td class="num">{{ '{:,.0f}'.format(it.product.price) }} ₫</td>
+                    <td class="num">{{ it.quantity }}</td>
+                    <td class="num">{{ '{:,.0f}'.format(it.subtotal) }} ₫</td>
+                    <td class="right">
+                        <form class="inline-form" method="POST"
+                              action="{{ url_for('customer.cart_remove', product_id=it.product.product_id) }}">
+                            <button class="btn btn-danger btn-sm" type="submit">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cart-summary">
+        <span>Tổng cộng:</span><strong>{{ '{:,.0f}'.format(total) }} ₫</strong>
+    </div>
+
+    <div class="cart-actions">
+        <a class="btn btn-secondary" href="{{ url_for('customer.shop') }}">← Tiếp tục mua</a>
+        <a class="btn" href="{{ url_for('customer.checkout') }}">Đặt hàng →</a>
+    </div>
 </div>
 {% else %}
+<div class="card empty">
     <p>Giỏ hàng đang trống.</p>
-    <a class="cus-btn" href="{{ url_for('customer.shop') }}">Đi mua sắm</a>
+    <a class="btn" href="{{ url_for('customer.shop') }}">Đi mua sắm</a>
+</div>
 {% endif %}
 {% endblock %}

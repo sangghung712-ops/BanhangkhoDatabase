@@ -1,0 +1,72 @@
+{% extends "customer_base.html" %}
+{% block title %}Đặt hàng{% endblock %}
+
+{% block page %}
+<div class="page-header"><h1>Xác nhận đặt hàng</h1></div>
+
+{% if loi %}<p class="error">{{ loi }}</p>{% endif %}
+
+<form method="POST" action="{{ url_for('customer.checkout') }}">
+<div class="checkout-grid">
+
+    <div>
+        <div class="card">
+            <h3>Thông tin giao hàng</h3>
+            <p class="muted">Người nhận: <strong>{{ customer.name }}</strong> · {{ customer.phone }}</p>
+
+            <label for="shipping_address">Địa chỉ giao hàng *</label>
+            <input class="input full" type="text" id="shipping_address" name="shipping_address"
+                   required maxlength="255" autofocus
+                   placeholder="Số nhà, đường, quận/huyện, tỉnh/thành"
+                   value="{{ form.shipping_address }}">
+            {% if not customer.has_address() %}
+                <p class="muted" style="margin-top:6px;">Địa chỉ này sẽ được lưu vào hồ sơ của bạn cho lần sau.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>Phương thức thanh toán</h3>
+            <div class="pay-options">
+                <label class="pay-option">
+                    <input type="radio" name="payment_method" value="Cash"
+                           {% if form.payment_method != 'Online' %}checked{% endif %}>
+                    <div class="pay-body">
+                        <strong>Tiền mặt khi nhận hàng</strong>
+                        <span class="muted">Thanh toán cho người giao hàng.</span>
+                    </div>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment_method" value="Online"
+                           {% if form.payment_method == 'Online' %}checked{% endif %}>
+                    <div class="pay-body">
+                        <strong>Thanh toán trực tuyến</strong>
+                        <span class="muted">Cửa hàng sẽ xác nhận khi nhận được tiền, sau đó mới hoàn tất đơn.</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card summary-card">
+            <h3>Đơn hàng của bạn</h3>
+            <ul class="summary-list">
+                {% for it in items %}
+                <li>
+                    <span>{{ it.product.product_name }} <span class="muted">× {{ it.quantity }}</span></span>
+                    <span>{{ '{:,.0f}'.format(it.subtotal) }} ₫</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="summary-total">
+                <span>Tổng cộng</span><strong>{{ '{:,.0f}'.format(total) }} ₫</strong>
+            </div>
+            <button class="btn btn-block" type="submit">Xác nhận đặt hàng</button>
+            <a class="btn btn-secondary btn-block" style="margin-top:8px;"
+               href="{{ url_for('customer.cart') }}">← Quay lại giỏ hàng</a>
+        </div>
+    </div>
+
+</div>
+</form>
+{% endblock %}

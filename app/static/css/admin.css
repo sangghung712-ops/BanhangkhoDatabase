@@ -1,0 +1,28 @@
+/* admin.css — giao diện quản trị */
+.stats {
+    display: grid; gap: 16px; margin-bottom: 22px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--primary); border-radius: var(--radius);
+    padding: 16px 18px; box-shadow: var(--shadow);
+}
+.stat-card.green  { border-left-color: var(--success); }
+.stat-card.orange { border-left-color: var(--warning); }
+.stat-card.purple { border-left-color: #8b5cf6; }
+.stat-label { font-size: 13px; color: var(--muted); }
+.stat-value { font-size: 26px; font-weight: 700; margin-top: 2px; }
+
+.card-title {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.card-title h3 { margin: 0; }
+
+.form-card { max-width: 560px; }
+.form-card .input { width: 100%; }
+.form-actions { display: flex; gap: 8px; margin-top: 22px; }
+
+.detail-table th { width: 160px; background: transparent; text-transform: none;
+                   letter-spacing: 0; font-size: 14px; color: var(--muted); }
+.order-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }

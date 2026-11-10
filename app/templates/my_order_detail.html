@@ -1,0 +1,54 @@
+{% extends "customer_base.html" %}
+{% block title %}Đơn #{{ order.order_id }}{% endblock %}
+
+{% block page %}
+<div class="page-header">
+    <h1>Đơn hàng #{{ order.order_id }}</h1>
+    <span class="badge {{ order.order_status.value }}">{{ STATUS_VI[order.order_status.value] }}</span>
+</div>
+
+<div class="card">
+    <h3>Thông tin đơn</h3>
+    <table class="table detail-table">
+        <tr><th>Ngày đặt</th><td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') if order.order_date }}</td></tr>
+        <tr><th>Địa chỉ giao</th><td>{{ order.shipping_address }}</td></tr>
+        <tr><th>Thanh toán</th>
+            <td>{{ PAYMENT_METHOD_VI[order.payment_method.value] }} · {{ PAYMENT_VI[order.payment_status.value] }}</td></tr>
+        {% if order.shipping_date %}
+        <tr><th>Ngày giao</th><td>{{ order.shipping_date.strftime('%d/%m/%Y %H:%M') }}</td></tr>
+        {% endif %}
+    </table>
+</div>
+
+<div class="card">
+    <h3>Sản phẩm</h3>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Sản phẩm</th><th class="num">Số lượng</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr></thead>
+            <tbody>
+            {% for it in order.items %}
+            <tr>
+                <td>{{ it.product_name }}</td>
+                <td class="num">{{ it.quantity }}</td>
+                <td class="num">{{ '{:,.0f}'.format(it.unit_price) }} ₫</td>
+                <td class="num">{{ '{:,.0f}'.format(it.subtotal) }} ₫</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="cart-summary">
+        <span>Tổng cộng:</span><strong>{{ '{:,.0f}'.format(order.total_amount) }} ₫</strong>
+    </div>
+</div>
+
+<div class="cart-actions">
+    <a class="btn btn-secondary" href="{{ url_for('customer.my_orders') }}">← Đơn hàng của tôi</a>
+    {% if order.order_status.value == 'Pending' %}
+    <form class="inline-form" method="POST" action="{{ url_for('customer.order_cancel', order_id=order.order_id) }}">
+        <button class="btn btn-danger" type="submit"
+                onclick="return confirm('Hủy đơn #{{ order.order_id }}?')">Hủy đơn</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -2,54 +2,58 @@
 {% block title %}Tổng quan{% endblock %}
 
 {% block page %}
-<style>
-    .stats { display: grid; gap: 14px; margin-bottom: 18px;
-             grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-    .stat .v { font-size: 26px; font-weight: 700; margin-top: 4px; }
-    .stat .l { color: #666; font-size: 13px; }
-    .two { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
-</style>
-
-<h1>Tổng quan</h1>
+<div class="page-header"><h1>Tổng quan</h1></div>
 
 <div class="stats">
-    <div class="adm-card stat"><div class="l">Sản phẩm đang bán</div><div class="v">{{ stats.products }}</div></div>
-    <div class="adm-card stat"><div class="l">Khách hàng</div><div class="v">{{ stats.customers }}</div></div>
-    <div class="adm-card stat"><div class="l">Tổng đơn hàng</div><div class="v">{{ stats.orders }}</div></div>
-    <div class="adm-card stat"><div class="l">Đơn chờ xác nhận</div><div class="v">{{ stats.pending }}</div></div>
-    <div class="adm-card stat"><div class="l">Doanh thu đã thu</div><div class="v">{{ '{:,.0f}'.format(stats.revenue) }} ₫</div></div>
+    <div class="stat-card"><div class="stat-label">Sản phẩm đang bán</div><div class="stat-value">{{ stats.products }}</div></div>
+    <div class="stat-card purple"><div class="stat-label">Khách hàng</div><div class="stat-value">{{ stats.customers }}</div></div>
+    <div class="stat-card"><div class="stat-label">Tổng đơn hàng</div><div class="stat-value">{{ stats.orders }}</div></div>
+    <div class="stat-card orange"><div class="stat-label">Đơn chờ xác nhận</div><div class="stat-value">{{ stats.pending }}</div></div>
+    <div class="stat-card green"><div class="stat-label">Doanh thu đã thu</div><div class="stat-value">{{ '{:,.0f}'.format(stats.revenue) }} ₫</div></div>
 </div>
 
-<div class="two">
-    <div class="adm-card">
-        <h3>Đơn hàng mới nhất</h3>
+<div class="grid-2">
+    <div class="card">
+        <div class="card-title">
+            <h3>Đơn hàng mới nhất</h3>
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.orders') }}">Xem tất cả</a>
+        </div>
         {% if recent %}
-        <table class="adm-table">
-            <tr><th>Mã</th><th>Khách</th><th class="num">Tổng</th><th>Trạng thái</th></tr>
-            {% for r in recent %}
-            <tr>
-                <td><a href="{{ url_for('admin.order_detail', order_id=r.order.order_id) }}">#{{ r.order.order_id }}</a></td>
-                <td>{{ r.customer_name }}</td>
-                <td class="num">{{ '{:,.0f}'.format(r.order.total_amount) }} ₫</td>
-                <td><span class="badge {{ r.order.order_status.value }}">{{ STATUS_VI[r.order.order_status.value] }}</span></td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}<p>Chưa có đơn hàng nào.</p>{% endif %}
-        <p><a class="adm-btn gray sm" href="{{ url_for('admin.orders') }}">Xem tất cả đơn</a></p>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Mã</th><th>Khách</th><th class="num">Tổng</th><th>Trạng thái</th></tr></thead>
+                <tbody>
+                {% for r in recent %}
+                <tr>
+                    <td><a href="{{ url_for('admin.order_detail', order_id=r.order.order_id) }}">#{{ r.order.order_id }}</a></td>
+                    <td>{{ r.customer_name }}</td>
+                    <td class="num">{{ '{:,.0f}'.format(r.order.total_amount) }} ₫</td>
+                    <td><span class="badge {{ r.order.order_status.value }}">{{ STATUS_VI[r.order.order_status.value] }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<p class="muted">Chưa có đơn hàng nào.</p>{% endif %}
     </div>
 
-    <div class="adm-card">
-        <h3>Sắp hết hàng (tồn ≤ 5)</h3>
+    <div class="card">
+        <div class="card-title">
+            <h3>Sắp hết hàng (tồn ≤ 5)</h3>
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.products') }}">Quản lý</a>
+        </div>
         {% if low_stock %}
-        <table class="adm-table">
-            <tr><th>Sản phẩm</th><th class="num">Tồn kho</th></tr>
-            {% for p in low_stock %}
-            <tr><td>{{ p.product_name }}</td><td class="num">{{ p.quantity }}</td></tr>
-            {% endfor %}
-        </table>
-        {% else %}<p>Không có sản phẩm nào sắp hết.</p>{% endif %}
-        <p><a class="adm-btn gray sm" href="{{ url_for('admin.products') }}">Quản lý sản phẩm</a></p>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Sản phẩm</th><th class="num">Tồn kho</th></tr></thead>
+                <tbody>
+                {% for p in low_stock %}
+                <tr><td>{{ p.product_name }}</td><td class="num"><strong>{{ p.quantity }}</strong></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<p class="muted">Không có sản phẩm nào sắp hết.</p>{% endif %}
     </div>
 </div>
 {% endblock %}
