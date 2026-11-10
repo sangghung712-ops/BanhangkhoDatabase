@@ -1,46 +1,143 @@
-{% extends "base.html" %}
-{% block title %}Đăng ký{% endblock %}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body class="auth-page">
+<div class="auth-shell">
 
-{% block content %}
-<div class="login-box">
-    <h1>Đăng ký tài khoản</h1>
+    <aside class="auth-hero">
+        <div class="hero-brand">
+            <span class="hero-logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </span>
+            Cửa hàng
+        </div>
 
-    {% if loi %}
-        <p class="error">{{ loi }}</p>
-    {% endif %}
+        <div>
+            <h2 class="hero-title">Tạo tài khoản<br>chỉ trong một phút.</h2>
+            <p class="hero-text">Điền thông tin của bạn để bắt đầu mua sắm và nhận hàng tại nhà.</p>
+            <ul class="hero-list">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lưu địa chỉ để đặt hàng nhanh hơn</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Xem lại lịch sử đơn hàng</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Miễn phí, không cần thẻ</li>
+            </ul>
+        </div>
 
-    <form method="POST" action="{{ url_for('auth.register') }}">
-        <label for="username">Tên đăng nhập *</label>
-        <input type="text" id="username" name="username" required autofocus
-               maxlength="100" value="{{ form.get('username', '') }}">
+        <div class="hero-foot">© Cửa hàng bán lẻ</div>
+    </aside>
 
-        <label for="password">Mật khẩu *</label>
-        <input type="password" id="password" name="password" required>
+    <main class="auth-main">
+        <div class="auth-card wide">
+            <div class="mobile-brand">
+                <span class="hero-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </span>
+                Cửa hàng
+            </div>
 
-        <label for="confirm_password">Nhập lại mật khẩu *</label>
-        <input type="password" id="confirm_password" name="confirm_password" required>
+            <h1>Tạo tài khoản</h1>
+            <p class="auth-sub">Các mục có dấu * là bắt buộc</p>
 
-        <label for="name">Họ và tên *</label>
-        <input type="text" id="name" name="name" required
-               maxlength="100" value="{{ form.get('name', '') }}">
+            {% if loi %}<div class="alert error">{{ loi }}</div>{% endif %}
 
-        <label for="email">Email *</label>
-        <input type="email" id="email" name="email" required
-               maxlength="100" value="{{ form.get('email', '') }}">
+            <form method="POST" action="{{ url_for('auth.register') }}">
+                <div class="form-row">
+                    <label for="username">Tên đăng nhập *</label>
+                    <div class="field">
+                        <input type="text" id="username" name="username" placeholder="Ví dụ: nguyenvana"
+                               required autofocus maxlength="100" autocomplete="username"
+                               value="{{ form.get('username', '') }}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                </div>
 
-        <label for="phone">Số điện thoại *</label>
-        <input type="tel" id="phone" name="phone" required
-               pattern="0[0-9]{9}" maxlength="10"
-               title="Gồm 10 chữ số, bắt đầu bằng 0"
-               value="{{ form.get('phone', '') }}">
+                <div class="row-2">
+                    <div class="form-row">
+                        <label for="password">Mật khẩu *</label>
+                        <div class="field has-toggle">
+                            <input type="password" id="password" name="password" placeholder="Mật khẩu"
+                                   required autocomplete="new-password">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <button type="button" class="toggle-pass" aria-label="Hiện hoặc ẩn mật khẩu" data-target="password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="confirm_password">Nhập lại mật khẩu *</label>
+                        <div class="field has-toggle">
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Nhập lại"
+                                   required autocomplete="new-password">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <button type="button" class="toggle-pass" aria-label="Hiện hoặc ẩn mật khẩu" data-target="confirm_password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-        <label for="address">Địa chỉ (có thể bổ sung sau)</label>
-        <input type="text" id="address" name="address"
-               maxlength="255" value="{{ form.get('address', '') }}">
+                <div class="form-row">
+                    <label for="name">Họ và tên *</label>
+                    <div class="field">
+                        <input type="text" id="name" name="name" placeholder="Nguyễn Văn A"
+                               required maxlength="100" value="{{ form.get('name', '') }}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                </div>
 
-        <button type="submit">Đăng ký</button>
-    </form>
+                <div class="row-2">
+                    <div class="form-row">
+                        <label for="email">Email *</label>
+                        <div class="field">
+                            <input type="email" id="email" name="email" placeholder="ten@email.com"
+                                   required maxlength="100" value="{{ form.get('email', '') }}">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="phone">Số điện thoại *</label>
+                        <div class="field">
+                            <input type="tel" id="phone" name="phone" placeholder="0901234567"
+                                   required pattern="0[0-9]{9}" maxlength="10"
+                                   title="Gồm 10 chữ số, bắt đầu bằng 0" value="{{ form.get('phone', '') }}">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+                        </div>
+                    </div>
+                </div>
 
-    <a class="btn-secondary" href="{{ url_for('auth.login') }}">Quay lại đăng nhập</a>
+                <div class="form-row">
+                    <label for="address">Địa chỉ</label>
+                    <div class="field">
+                        <input type="text" id="address" name="address" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành"
+                               maxlength="255" value="{{ form.get('address', '') }}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <p class="hint">Có thể bổ sung sau khi đặt hàng</p>
+                </div>
+
+                <button class="btn-primary" type="submit">Đăng ký</button>
+            </form>
+
+            <div class="divider">đã có tài khoản?</div>
+            <a class="btn-outline" href="{{ url_for('auth.login') }}">Quay lại đăng nhập</a>
+        </div>
+    </main>
 </div>
-{% endblock %}
+
+<script>
+    document.querySelectorAll('.toggle-pass').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.dataset.target);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
+</script>
+</body>
+</html>

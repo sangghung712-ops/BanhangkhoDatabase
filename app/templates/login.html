@@ -1,23 +1,95 @@
-{% extends "base.html" %}
-{% block title %}Đăng nhập{% endblock %}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body class="auth-page">
+<div class="auth-shell">
 
-{% block content %}
-<div class="login-box">
-    <h1>Đăng nhập</h1>
+    <!-- Khung thương hiệu -->
+    <aside class="auth-hero">
+        <div class="hero-brand">
+            <span class="hero-logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </span>
+            Cửa hàng
+        </div>
 
-    {% if loi %}
-        <p class="error">{{ loi }}</p>
-    {% endif %}
+        <div>
+            <h2 class="hero-title">Mua sắm dễ dàng,<br>quản lý gọn gàng.</h2>
+            <p class="hero-text">Đăng nhập để xem sản phẩm, đặt hàng và theo dõi đơn hàng của bạn mọi lúc.</p>
+            <ul class="hero-list">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Hàng trăm sản phẩm, cập nhật liên tục</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Theo dõi trạng thái đơn hàng rõ ràng</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Thanh toán tiền mặt hoặc trực tuyến</li>
+            </ul>
+        </div>
 
-    <form method="POST" action="{{ url_for('auth.login') }}">
-        <label for="username">Tên đăng nhập</label>
-        <input type="text" id="username" name="username" required autofocus>
+        <div class="hero-foot">© Cửa hàng bán lẻ</div>
+    </aside>
 
-        <label for="password">Mật khẩu</label>
-        <input type="password" id="password" name="password" required>
+    <!-- Form đăng nhập -->
+    <main class="auth-main">
+        <div class="auth-card">
+            <div class="mobile-brand">
+                <span class="hero-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </span>
+                Cửa hàng
+            </div>
 
-        <button type="submit">Đăng nhập</button>
-    </form>
-        <a class="btn-secondary" href="{{ url_for('auth.register') }}">Tạo tài khoản</a>
+            <h1>Chào mừng trở lại</h1>
+            <p class="auth-sub">Đăng nhập để tiếp tục</p>
+
+            {% with messages = get_flashed_messages() %}
+                {% for m in messages %}<div class="alert info">{{ m }}</div>{% endfor %}
+            {% endwith %}
+            {% if loi %}<div class="alert error">{{ loi }}</div>{% endif %}
+
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="form-row">
+                    <label for="username">Tên đăng nhập</label>
+                    <div class="field">
+                        <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập"
+                               required autofocus autocomplete="username">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="password">Mật khẩu</label>
+                    <div class="field has-toggle">
+                        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu"
+                               required autocomplete="current-password">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <button type="button" class="toggle-pass" aria-label="Hiện hoặc ẩn mật khẩu" data-target="password">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn-primary" type="submit">Đăng nhập</button>
+            </form>
+
+            <div class="divider">hoặc</div>
+            <a class="btn-outline" href="{{ url_for('auth.register') }}">Tạo tài khoản mới</a>
+        </div>
+    </main>
 </div>
-{% endblock %}
+
+<script>
+    document.querySelectorAll('.toggle-pass').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.dataset.target);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
+</script>
+</body>
+</html>
