@@ -136,5 +136,3 @@ TRUNCATE TABLE customers;
 TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO users (user_name, user_password, user_role)
-VALUES ('admin', 'scrypt:32768:8:1$DtAtqAiAYzaPssor$63c6a89e74f526ab430828e94553b92f15db79ac8ef511b25d1696aa9585eca48ace9ee5f938ffb6e01c2c4a42150b2f1803d30a28850426c1bbd67fbefc6640', 'Admin');
