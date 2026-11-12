@@ -1,0 +1,83 @@
+{% extends "admin_base.html" %}
+{% block title %}Báo cáo doanh thu{% endblock %}
+
+{% block page %}
+<div class="page-header">
+    <h1>Báo cáo doanh thu</h1>
+    <form class="inline-form" method="GET" action="{{ url_for('admin.reports') }}">
+        <select class="input" name="group">
+            {% for k, v in GROUP_VI.items() %}
+                <option value="{{ k }}" {% if k == group %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+        <input class="input" type="date" name="from" value="{{ date_from }}" title="Từ ngày">
+        <input class="input" type="date" name="to" value="{{ date_to }}" title="Đến ngày">
+        <button class="btn btn-sm" type="submit">Xem</button>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.reports') }}">Xóa lọc</a>
+    </form>
+</div>
+
+<div class="stats">
+    <div class="stat-card green"><div class="stat-label">Tổng doanh thu (kỳ lọc)</div><div class="stat-value">{{ '{:,.0f}'.format(total_revenue) }} ₫</div></div>
+    <div class="stat-card"><div class="stat-label">Số đơn Completed &amp; Paid</div><div class="stat-value">{{ total_orders }}</div></div>
+</div>
+
+<div class="card">
+    <div class="card-title"><h3>Doanh thu {{ GROUP_VI[group].lower() }}</h3></div>
+    <p class="muted">Chỉ tính đơn Hoàn thành và Đã thanh toán, theo ngày thanh toán.</p>
+    {% if revenue %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Kỳ</th><th class="num">Số đơn</th><th class="num">Doanh thu</th></tr></thead>
+            <tbody>
+            {% for r in revenue %}
+                <tr>
+                    <td>{{ r.period }}</td>
+                    <td class="num">{{ r.so_don }}</td>
+                    <td class="num">{{ '{:,.0f}'.format(r.doanh_thu) }} ₫</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}<p class="muted">Chưa có dữ liệu doanh thu trong khoảng này.</p>{% endif %}
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-title"><h3>Sản phẩm bán chạy</h3></div>
+        {% if sellers %}
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Sản phẩm</th><th>Danh mục</th><th class="num">Đã bán</th></tr></thead>
+                <tbody>
+                {% for p in sellers %}
+                    <tr><td>{{ p.product_name }}</td><td>{{ p.category }}</td><td class="num"><strong>{{ p.so_luong_da_ban }}</strong></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<p class="muted">Chưa có dữ liệu.</p>{% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-title"><h3>Thống kê đơn theo trạng thái</h3></div>
+        {% if status_stats %}
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Trạng thái</th><th class="num">Số đơn</th><th class="num">Tổng giá trị</th></tr></thead>
+                <tbody>
+                {% for s in status_stats %}
+                    <tr>
+                        <td><span class="badge {{ s.order_status }}">{{ STATUS_VI.get(s.order_status, s.order_status) }}</span></td>
+                        <td class="num">{{ s.so_don }}</td>
+                        <td class="num">{{ '{:,.0f}'.format(s.tong_gia_tri) }} ₫</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<p class="muted">Chưa có dữ liệu.</p>{% endif %}
+    </div>
+</div>
+{% endblock %}

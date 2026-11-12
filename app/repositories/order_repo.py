@@ -73,8 +73,32 @@ def stats():
         "(SELECT COUNT(*) FROM orders) AS orders, "
         "(SELECT COUNT(*) FROM orders WHERE order_status='Pending') AS pending, "
         "(SELECT COALESCE(SUM(total_amount),0) FROM orders "
-        " WHERE payment_status='Paid') AS revenue")[0]
+        " WHERE order_status='Completed' AND payment_status='Paid' "
+        " AND payment_date IS NOT NULL) AS revenue")[0]
+#----- report thong ke doanh thu-----
+def _call_report(proc, args):
+    con = get_connection()
+    try:
+        cur = con.cursor(dictionary=True)
+        cur.callproc(proc, args)
+        rows = []
+        for result in cur.stored_results():
+            rows = result.fetchall()
+        return rows
+    finally:
+        con.close()
 
+
+def revenue_report(group="MONTH", date_from=None, date_to=None):
+    return _call_report("bao_cao_doanh_thu", [group, date_from, date_to])
+
+
+def best_sellers(limit=10, date_from=None, date_to=None):
+    return _call_report("san_pham_ban_chay", [limit, date_from, date_to])
+
+
+def order_status_stats(date_from=None, date_to=None):
+    return _call_report("thong_ke_don_hang", [date_from, date_to])
 
 # ---------- Khách hàng ----------
 def get_by_customer(customer_id):

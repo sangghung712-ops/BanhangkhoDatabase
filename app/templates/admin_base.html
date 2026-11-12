@@ -12,6 +12,8 @@
                href="{{ url_for('admin.products') }}">Sản phẩm</a>
             <a class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('admin.order') }}"
                href="{{ url_for('admin.orders') }}">Đơn hàng</a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'admin.reports' }}"
+               href="{{ url_for('admin.reports') }}">Báo cáo</a>
         </div>
         <div class="nav-user">
             <span>{{ session.get('username') }}</span>

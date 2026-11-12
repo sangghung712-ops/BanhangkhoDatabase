@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 import mysql.connector
@@ -201,3 +202,45 @@ def order_status(order_id):
     except mysql.connector.Error as e:
         flash(_loi_db(e))
     return redirect(request.referrer or url_for("admin.orders"))
+
+# ---------------- Báo cáo doanh thu ----------------
+GROUP_VI = {"DAY": "Theo ngày", "MONTH": "Theo tháng", "YEAR": "Theo năm"}
+ 
+ 
+def _doc_ngay(chuoi):
+    """'YYYY-MM-DD' -> date; rỗng/sai định dạng -> None (không lọc)."""
+    try:
+        return datetime.strptime(chuoi.strip(), "%Y-%m-%d").date()
+    except (ValueError, AttributeError):
+        return None
+ 
+ 
+@admin_bp.route("/reports")
+@yeu_cau_vai_tro("Admin")
+def reports():
+    group = request.args.get("group", "MONTH").upper()
+    if group not in GROUP_VI:
+        group = "MONTH"
+    date_from = _doc_ngay(request.args.get("from", ""))
+    date_to = _doc_ngay(request.args.get("to", ""))
+ 
+    revenue, sellers, status_stats = [], [], []
+    try:
+        revenue = order_repo.revenue_report(group, date_from, date_to)
+        sellers = order_repo.best_sellers(10, date_from, date_to)
+        status_stats = order_repo.order_status_stats(date_from, date_to)
+    except mysql.connector.Error as e:
+        flash(_loi_db(e))
+ 
+    return render_template(
+        "admin_reports.html",
+        group=group, GROUP_VI=GROUP_VI,
+        date_from=date_from.isoformat() if date_from else "",
+        date_to=date_to.isoformat() if date_to else "",
+        revenue=revenue, sellers=sellers, status_stats=status_stats,
+        total_revenue=sum((r["doanh_thu"] for r in revenue), Decimal(0)),
+        total_orders=sum(r["so_don"] for r in revenue),
+        STATUS_VI=STATUS_VI,
+    )
+ 
+
