@@ -50,12 +50,8 @@ def _customer():
 
 
 def _order_cua_toi(order_id):
-    """Lấy đơn nếu đúng của khách đang đăng nhập, ngược lại trả None."""
-    customer = _customer()
-    data = order_repo.get_by_id(order_id)
-    if data is None or data["order"].customer_id != customer.customer_id:
-        return None
-    return data
+    """Lấy đơn (kèm items) nếu đúng của khách đang đăng nhập, ngược lại None."""
+    return order_repo.get_for_customer(order_id, _customer().customer_id)
 
 
 # ---------------- Sản phẩm & giỏ hàng ----------------
@@ -166,11 +162,11 @@ def my_orders():
 @customer_bp.route("/orders/<int:order_id>")
 @yeu_cau_vai_tro("Customer")
 def order_detail(order_id):
-    data = _order_cua_toi(order_id)
-    if data is None:
+    order = _order_cua_toi(order_id)
+    if order is None:
         flash("Không tìm thấy đơn hàng")
         return redirect(url_for("customer.my_orders"))
-    return render_template("my_order_detail.html", order=data["order"],
+    return render_template("my_order_detail.html", order=order,
                            STATUS_VI=STATUS_VI, PAYMENT_VI=PAYMENT_VI,
                            PAYMENT_METHOD_VI=PAYMENT_METHOD_VI)
 
@@ -178,11 +174,11 @@ def order_detail(order_id):
 @customer_bp.route("/orders/<int:order_id>/cancel", methods=["POST"])
 @yeu_cau_vai_tro("Customer")
 def order_cancel(order_id):
-    data = _order_cua_toi(order_id)
-    if data is None:
+    order = _order_cua_toi(order_id)
+    if order is None:
         flash("Không tìm thấy đơn hàng")
         return redirect(url_for("customer.my_orders"))
-    if data["order"].order_status != OrderStatus.PENDING:
+    if order.order_status != OrderStatus.PENDING:
         flash("Chỉ hủy được đơn đang chờ xác nhận")
     else:
         try:

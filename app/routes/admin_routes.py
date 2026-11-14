@@ -170,10 +170,18 @@ def orders():
     status = request.args.get("status", "").strip()
     if status not in STATUS_VI:
         status = ""
-    rows = order_repo.get_all(status or None)
+    date_from = _doc_ngay(request.args.get("from", ""))
+    date_to = _doc_ngay(request.args.get("to", ""))
+    try:
+        rows = order_repo.get_all(status or None, date_from, date_to)
+    except mysql.connector.Error as e:
+        flash(_loi_db(e))
+        rows = []
     for r in rows:
         r["actions"] = [s.value for s in OrderStatus if r["order"].can_change_to(s)]
     return render_template("admin_orders.html", rows=rows, status=status,
+                           date_from=date_from.isoformat() if date_from else "",
+                           date_to=date_to.isoformat() if date_to else "",
                            STATUS_VI=STATUS_VI, ACTION_VI=ACTION_VI,
                            PAYMENT_VI=PAYMENT_VI)
 

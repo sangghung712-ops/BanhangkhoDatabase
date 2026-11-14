@@ -1,3 +1,5 @@
+from decimal import Decimal
+import mysql.connector
 from app.db import get_connection
 from app.models import Order, OrderItem
 
@@ -27,15 +29,10 @@ def _wrap(r):
 
 
 # ---------- Admin ----------
-def get_all(status=None):
-    sql = _SELECT
-    params = []
-    if status:
-        sql += " WHERE o.order_status = %s"
-        params.append(status)
-    sql += " ORDER BY o.order_date DESC, o.order_id DESC"
-    return [_wrap(r) for r in _query(sql, tuple(params))]
-
+def get_all(status=None, date_from=None, date_to=None):
+    """Danh sách đơn cho admin (procedure admin_loc_don_hang 6.3)."""
+    return [_wrap(r) for r in
+            _call_proc("admin_loc_don_hang", [status, date_from, date_to])]
 
 def get_by_id(order_id):
     rows = _query(_SELECT + " WHERE o.order_id = %s", (order_id,))
@@ -76,6 +73,18 @@ def stats():
         " WHERE order_status='Completed' AND payment_status='Paid' "
         " AND payment_date IS NOT NULL) AS revenue")[0]
 #----- report thong ke doanh thu-----
+def _call_proc(proc, args):
+    """Gọi procedure chỉ đọc, trả về result set đầu tiên (list dict)."""
+    con = get_connection()
+    try:
+        cur = con.cursor(dictionary=True)
+        cur.callproc(proc, args)
+        for result in cur.stored_results():
+            return result.fetchall()
+        return []
+    finally:
+        con.close()
+
 def _call_report(proc, args):
     con = get_connection()
     try:
@@ -102,9 +111,32 @@ def order_status_stats(date_from=None, date_to=None):
 
 # ---------- Khách hàng ----------
 def get_by_customer(customer_id):
-    rows = _query("SELECT * FROM orders WHERE customer_id = %s "
-                  "ORDER BY order_date DESC, order_id DESC", (customer_id,))
-    return [Order.from_row(r) for r in rows]
+    """Lịch sử đơn của một khách (procedure xem_don_hang_khach 6.1)."""
+    return [Order.from_row(r)
+            for r in _call_proc("xem_don_hang_khach", [customer_id])]
+def get_for_customer(order_id, customer_id):
+    """Chi tiết đơn của khách (procedure xem_chi_tiet_don_hang 6.2).
+    Procedure tự kiểm tra quyền: lỗi -> trả về None."""
+    con = get_connection()
+    try:
+        cur = con.cursor(dictionary=True)
+        cur.callproc("xem_chi_tiet_don_hang", [order_id, customer_id])
+        sets = [r.fetchall() for r in cur.stored_results()]
+    except mysql.connector.Error:
+        return None
+    finally:
+        con.close()
+
+    if len(sets) < 2 or not sets[0]:
+        return None
+    order = Order.from_row(sets[0][0])
+    order.items = [
+        OrderItem(order_id=order_id, product_id=r["product_id"],
+                  quantity=r["quantity"], unit_price=Decimal(r["gia_hien_tai"]),
+                  product_name=r["product_name"])
+        for r in sets[1]
+    ]
+    return order
 
 
 def create_from_cart(customer_id, address, payment_method, cart):

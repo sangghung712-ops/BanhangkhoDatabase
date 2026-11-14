@@ -1,4 +1,4 @@
-
+USE Retail;
 -- ---------------------------------------------------------------------
 -- 6.1 Lich su don hang cua mot khach
 -- ---------------------------------------------------------------------
@@ -10,7 +10,7 @@ CREATE PROCEDURE xem_don_hang_khach(
     IN p_customer_id INT
 )
 BEGIN
-    SELECT order_id, order_date, order_status, total_amount,
+    SELECT order_id, customer_id, order_date, order_status, total_amount,
            payment_method, payment_status, shipping_date, payment_date,
            shipping_address
     FROM orders
@@ -90,8 +90,11 @@ BEGIN
             SET MESSAGE_TEXT = 'Trang thai loc khong hop le';
     END IF;
  
-    SELECT o.order_id, o.customer_id, c.name AS customer_name, o.order_date,
-           o.order_status, o.total_amount, o.payment_method, o.payment_status
+    SELECT o.order_id, o.customer_id, c.name AS customer_name,
+           c.phone AS customer_phone, c.email AS customer_email,
+           o.order_date, o.order_status, o.total_amount,
+           o.payment_method, o.payment_status,
+           o.shipping_date, o.payment_date, o.shipping_address
     FROM orders o
     JOIN customers c ON c.customer_id = o.customer_id
     WHERE (p_status IS NULL OR o.order_status = p_status)

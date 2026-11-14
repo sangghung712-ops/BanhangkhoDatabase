@@ -11,6 +11,12 @@
                 <option value="{{ k }}" {% if k == status %}selected{% endif %}>{{ v }}</option>
             {% endfor %}
         </select>
+        <input class="input" type="date" name="from" value="{{ date_from }}" title="Từ ngày">
+        <input class="input" type="date" name="to" value="{{ date_to }}" title="Đến ngày">
+        <button class="btn btn-sm" type="submit">Lọc</button>
+        {% if status or date_from or date_to %}
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.orders') }}">Xóa lọc</a>
+        {% endif %}
     </form>
 </div>
 
