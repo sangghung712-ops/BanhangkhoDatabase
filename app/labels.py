@@ -19,7 +19,8 @@ LOI_VI = {
     "Chua co dia chi giao hang": "Vui lòng nhập địa chỉ giao hàng",
     "Phuong thuc thanh toan khong hop le": "Phương thức thanh toán không hợp lệ",
     "Khach hang khong ton tai": "Không tìm thấy thông tin khách hàng",
-    "Khong the chuyen sang trang thai nay": "Đơn hàng không thể hủy ở trạng thái hiện tại",
+    "Khong the chuyen sang trang thai nay": "Trạng thái đơn hàng đã thay đổi, không thể thực hiện thao tác này",
+    "Don Online chua thanh toan, khong the hoan thanh": "Đơn thanh toán trực tuyến cần được cửa hàng xác nhận đã nhận tiền trước khi hoàn thành",
 }
 
 

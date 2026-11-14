@@ -72,8 +72,8 @@ def get_low_stock(threshold=5, limit=5):
 # ---------- Ghi (qua stored procedure) ----------
 def create(name, price, category, quantity):
     _call("them_san_pham", [name, price, category, quantity])
-
-
+    rows = _query("SELECT product_id FROM products WHERE product_name = %s", (name,))
+    return rows[0]["product_id"]
 def update(product_id, name, price, category):
     _call("cap_nhat_san_pham", [product_id, name, price, category])
 

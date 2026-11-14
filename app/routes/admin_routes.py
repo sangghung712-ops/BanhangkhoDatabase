@@ -1,3 +1,6 @@
+import os
+from flask import current_app
+from ..services import image_upload
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
@@ -82,9 +85,17 @@ def product_new():
         loi = "Số lượng phải là số nguyên không âm"
     else:
         try:
-            product_repo.create(form["name"], price, form["category"], quantity)
+            image = image_upload.read_image(request.files.get("image"))
+            product_id = product_repo.create(form["name"], price,
+                                             form["category"], quantity)
+            if image:
+                image_upload.store_image(product_id, *image, _upload_dir())
             flash(f"Đã thêm sản phẩm “{form['name']}”")
             return redirect(url_for("admin.products"))
+        except ValueError as e:
+            loi = str(e)
+        except OSError:
+            loi = "Không lưu được file ảnh"
         except mysql.connector.Error as e:
             loi = _loi_db(e)
     return render_template("admin_product_form.html", product=None,
@@ -115,9 +126,18 @@ def product_edit(product_id):
         loi = "Giá phải là số lớn hơn 0"
     else:
         try:
+            image = image_upload.read_image(request.files.get("image"))
             product_repo.update(product_id, form["name"], price, form["category"])
+            if image:
+                image_upload.store_image(product_id, *image, _upload_dir())
+            elif request.form.get("remove_image"):
+                image_upload.delete_images(product_id, _upload_dir())
             flash("Đã cập nhật sản phẩm")
             return redirect(url_for("admin.products"))
+        except ValueError as e:
+            loi = str(e)
+        except OSError:
+            loi = "Không lưu được file ảnh"
         except mysql.connector.Error as e:
             loi = _loi_db(e)
     return render_template("admin_product_form.html", product=product,
@@ -250,5 +270,11 @@ def reports():
         total_orders=sum(r["so_don"] for r in revenue),
         STATUS_VI=STATUS_VI,
     )
- 
+import os
+from flask import current_app
+from ..services import image_upload
+
+
+def _upload_dir():
+    return os.path.join(current_app.static_folder, "uploads", "products")
 

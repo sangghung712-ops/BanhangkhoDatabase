@@ -2,10 +2,24 @@
 {% block title %}Đơn #{{ order.order_id }}{% endblock %}
 
 {% block page %}
+{# Đơn Online mà cửa hàng chưa xác nhận đã nhận tiền thì chưa hoàn thành được #}
+{% set cho_thanh_toan = order.payment_method.value == 'Online' and order.payment_status.value != 'Paid' %}
+
 <div class="page-header">
     <h1>Đơn hàng #{{ order.order_id }}</h1>
     <span class="badge {{ order.order_status.value }}">{{ STATUS_VI[order.order_status.value] }}</span>
 </div>
+
+{% if order.order_status.value == 'Shipping' %}
+<div class="flash">
+    {% if cho_thanh_toan %}
+        Đơn đang được giao. Đơn thanh toán trực tuyến cần được cửa hàng xác nhận đã nhận tiền
+        trước khi bạn có thể xác nhận hoàn thành.
+    {% else %}
+        Đơn đang được giao. Khi nhận được hàng, hãy bấm <strong>Đã nhận hàng</strong> để hoàn tất đơn.
+    {% endif %}
+</div>
+{% endif %}
 
 <div class="card">
     <h3>Thông tin đơn</h3>
@@ -44,10 +58,18 @@
 
 <div class="cart-actions">
     <a class="btn btn-secondary" href="{{ url_for('customer.my_orders') }}">← Đơn hàng của tôi</a>
+
     {% if order.order_status.value == 'Pending' %}
     <form class="inline-form" method="POST" action="{{ url_for('customer.order_cancel', order_id=order.order_id) }}">
         <button class="btn btn-danger" type="submit"
                 onclick="return confirm('Hủy đơn #{{ order.order_id }}?')">Hủy đơn</button>
+    </form>
+    {% endif %}
+
+    {% if order.order_status.value == 'Shipping' and not cho_thanh_toan %}
+    <form class="inline-form" method="POST" action="{{ url_for('customer.order_received', order_id=order.order_id) }}">
+        <button class="btn btn-success" type="submit"
+                onclick="return confirm('Xác nhận bạn đã nhận được hàng của đơn #{{ order.order_id }}?')">Đã nhận hàng</button>
     </form>
     {% endif %}
 </div>

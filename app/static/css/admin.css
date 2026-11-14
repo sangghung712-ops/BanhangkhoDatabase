@@ -26,3 +26,9 @@
 .detail-table th { width: 160px; background: transparent; text-transform: none;
                    letter-spacing: 0; font-size: 14px; color: var(--muted); }
 .order-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.thumb-sm { width: 44px; height: 44px; object-fit: cover; border-radius: 8px;
+            border: 1px solid var(--border); }
+.thumb-empty { display: flex; align-items: center; justify-content: center;
+               background: var(--primary-soft); color: var(--primary); font-weight: 700; }
+.img-current img { max-width: 160px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 6px; }
+.check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 4px 0 10px; }

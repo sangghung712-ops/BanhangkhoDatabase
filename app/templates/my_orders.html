@@ -22,8 +22,20 @@
                 <td class="num">{{ '{:,.0f}'.format(o.total_amount) }} ₫</td>
                 <td>{{ PAYMENT_VI[o.payment_status.value] }}</td>
                 <td><span class="badge {{ o.order_status.value }}">{{ STATUS_VI[o.order_status.value] }}</span></td>
-                <td class="right"><a class="btn btn-secondary btn-sm"
-                    href="{{ url_for('customer.order_detail', order_id=o.order_id) }}">Xem</a></td>
+                <td>
+                    <div class="actions" style="justify-content:flex-end;">
+                        {% if o.order_status.value == 'Shipping'
+                              and not (o.payment_method.value == 'Online' and o.payment_status.value != 'Paid') %}
+                        <form class="inline-form" method="POST"
+                              action="{{ url_for('customer.order_received', order_id=o.order_id) }}">
+                            <button class="btn btn-success btn-sm" type="submit"
+                                    onclick="return confirm('Xác nhận bạn đã nhận được hàng của đơn #{{ o.order_id }}?')">Đã nhận hàng</button>
+                        </form>
+                        {% endif %}
+                        <a class="btn btn-secondary btn-sm"
+                           href="{{ url_for('customer.order_detail', order_id=o.order_id) }}">Xem</a>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
             </tbody>

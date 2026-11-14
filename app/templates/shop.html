@@ -22,7 +22,11 @@
 <div class="product-grid">
     {% for p in products %}
     <div class="product-card">
-        <div class="product-thumb">{{ p.product_name[0]|upper }}</div>
+                {% set img = product_image(p.product_id) %}
+        <div class="product-thumb">
+            {% if img %}<img src="{{ img }}" alt="{{ p.product_name }}" loading="lazy">
+            {% else %}{{ p.product_name[0]|upper }}{% endif %}
+        </div>
         <div class="product-body">
             <span class="product-cat">{{ p.category }}</span>
             <span class="product-name">{{ p.product_name }}</span>

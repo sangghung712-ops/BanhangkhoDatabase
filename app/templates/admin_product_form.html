@@ -7,7 +7,7 @@
 <div class="card form-card">
     {% if loi %}<p class="error">{{ loi }}</p>{% endif %}
 
-    <form method="POST"
+    <form method="POST" enctype="multipart/form-data"
           action="{{ url_for('admin.product_edit', product_id=product.product_id) if product else url_for('admin.product_new') }}">
         <label for="name">Tên sản phẩm *</label>
         <input class="input" type="text" id="name" name="name" required maxlength="100"
@@ -32,7 +32,16 @@
         <p class="muted" style="margin-top:14px;">Tồn kho cập nhật ở trang danh sách sản phẩm.
            Đổi giá chỉ ảnh hưởng đơn tạo sau đó.</p>
         {% endif %}
-
+               <label for="image">Ảnh sản phẩm</label>
+        {% set img = product_image(product.product_id) if product else None %}
+        {% if img %}
+            <div class="img-current"><img src="{{ img }}" alt=""></div>
+            <label class="check"><input type="checkbox" name="remove_image" value="1"> Xóa ảnh hiện tại</label>
+        {% endif %}
+        <input class="input" type="file" id="image" name="image"
+               accept="image/png,image/jpeg,image/gif,image/webp">
+        <p class="muted">PNG, JPG, GIF hoặc WEBP, tối đa 2 MB.
+           {% if product %}Chọn ảnh mới để thay thế.{% endif %}</p>
         <div class="form-actions">
             <button class="btn" type="submit">Lưu</button>
             <a class="btn btn-secondary" href="{{ url_for('admin.products') }}">Hủy</a>

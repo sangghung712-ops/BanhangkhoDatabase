@@ -1,12 +1,14 @@
+import os
 from decimal import Decimal
 
 import mysql.connector
 from flask import (Blueprint, abort, flash, redirect, render_template,
-                   request, session, url_for)
+                   request, session, url_for, current_app)
 
 from ..labels import PAYMENT_METHOD_VI, PAYMENT_VI, STATUS_VI, dich_loi
 from ..models import OrderStatus
 from ..repositories import customer_repo, order_repo, product_repo
+from ..services import image_upload
 from ..services.auth import yeu_cau_vai_tro
 
 customer_bp = Blueprint("customer", __name__)
@@ -187,3 +189,34 @@ def order_cancel(order_id):
         except mysql.connector.Error as e:
             flash(dich_loi(e.msg or str(e)))
     return redirect(url_for("customer.order_detail", order_id=order_id))
+@customer_bp.route("/orders/<int:order_id>/received", methods=["POST"])
+@customer_bp.route("/orders/<int:order_id>/received", methods=["POST"])
+@yeu_cau_vai_tro("Customer")
+def order_received(order_id):
+    data = _order_cua_toi(order_id)
+    if data is None:
+        flash("Không tìm thấy đơn hàng")
+        return redirect(url_for("customer.my_orders"))
+
+    # data có thể là dict {"order": Order, ...} hoặc chính là Order
+    order = data["order"] if isinstance(data, dict) else data
+
+    if order.order_status != OrderStatus.SHIPPING:
+        flash("Chỉ xác nhận đã nhận hàng khi đơn đang được giao")
+    else:
+        try:
+            order_repo.update_status(order_id, "Completed")
+            flash(f"Cảm ơn bạn! Đơn #{order_id} đã hoàn thành")
+        except mysql.connector.Error as e:
+            flash(dich_loi(e.msg or str(e)))
+    return redirect(url_for("customer.order_detail", order_id=order_id))
+@customer_bp.app_context_processor
+def inject_product_image():
+    def product_image(product_id):
+        folder = os.path.join(current_app.static_folder, "uploads", "products")
+        name = image_upload.find_image(product_id, folder)
+        if not name:
+            return None
+        version = int(os.path.getmtime(os.path.join(folder, name)))
+        return url_for("static", filename=f"uploads/products/{name}", v=version)
+    return {"product_image": product_image}
