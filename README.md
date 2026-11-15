@@ -60,7 +60,7 @@ banhang_app/
 ├── My_Retail_Table.sql       # tạo bảng
 ├── My_Retail_Trigger.sql     # trigger kiểm tra và trừ tồn kho, cộng tổng tiền
 ├── My_Retail_Procedures.sql  # stored procedure
-├── My_Retail_View.sql        # view
+├── My_Retail_TestCase.sql    # test mẫu dữ liệu
 ├── My_Retail_Report.sql      # procedure/view cho báo cáo
 ├── My_Retail_Insertdata.sql  # dữ liệu mẫu (tùy chọn)
 └── app/
@@ -125,6 +125,7 @@ Cài MySQL 8.0.16 trở lên và chạy các file SQL **theo đúng thứ tự**
 3. `My_Retail_Procedures.sql`
 4. `My_Retail_Report.sql`
 5. `My_Retail_Insertdata.sql` (tùy chọn, dữ liệu mẫu)
+6.  `My_Retail_TestCase.sql`
 
 ```bash
 mysql -u root -p < My_Retail_Table.sql
@@ -266,4 +267,5 @@ Dự án phục vụ học tập và trình diễn, chưa sẵn sàng triển kh
 
 ## Tác giả
 - Lê Sang Hùng
+  
 - Nguyễn Hoài Nhân
