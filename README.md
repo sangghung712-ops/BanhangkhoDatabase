@@ -265,5 +265,5 @@ Dự án phục vụ học tập và trình diễn, chưa sẵn sàng triển kh
 - Ứng dụng chạy bằng máy chủ phát triển của Flask (`debug=True`).
 
 ## Tác giả
-Lê Sang Hùng
-Nguyễn Hoài Nhân
+- Lê Sang Hùng
+- Nguyễn Hoài Nhân
