@@ -123,9 +123,8 @@ Cài MySQL 8.0.16 trở lên và chạy các file SQL **theo đúng thứ tự**
 1. `My_Retail_Table.sql`
 2. `My_Retail_Trigger.sql`
 3. `My_Retail_Procedures.sql`
-4. `My_Retail_View.sql`
-5. `My_Retail_Report.sql`
-6. `My_Retail_Insertdata.sql` (tùy chọn, dữ liệu mẫu)
+4. `My_Retail_Report.sql`
+5. `My_Retail_Insertdata.sql` (tùy chọn, dữ liệu mẫu)
 
 ```bash
 mysql -u root -p < My_Retail_Table.sql
