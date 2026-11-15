@@ -96,3 +96,31 @@ BEGIN
 END$$
 
 DELIMITER ;
+-- Trigger 3 không thể xóa sản phẩm khi đơn đã qua trạng thái pending
+DELIMITER $$
+
+CREATE TRIGGER trg_order_items_bd_block_delete
+BEFORE DELETE ON order_items
+FOR EACH ROW
+BEGIN
+    DECLARE v_status VARCHAR(45);
+    SELECT order_status INTO v_status FROM orders WHERE order_id = OLD.order_id;
+    IF v_status <> 'Pending' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Khong the xoa san pham khi don khong con Pending';
+    END IF;
+END$$
+-- Trigger 4 không thể sửa sản phẩm khi đơn ko còn pending 
+CREATE TRIGGER trg_order_items_bu_block_update
+BEFORE UPDATE ON order_items
+FOR EACH ROW
+BEGIN
+    DECLARE v_status VARCHAR(45);
+    SELECT order_status INTO v_status FROM orders WHERE order_id = OLD.order_id;
+    IF v_status <> 'Pending' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Khong the sua san pham khi don khong con Pending';
+    END IF;
+END$$
+
+DELIMITER ;
