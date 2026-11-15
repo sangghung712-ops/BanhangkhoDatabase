@@ -1,6 +1,7 @@
 
 USE Retail;
-
+DROP TRIGGER IF EXISTS trg_order_items_bd_block_delete;
+DROP TRIGGER IF EXISTS trg_order_items_bu_block_update;
 DROP TRIGGER IF EXISTS trg_order_items_bi_check_stock;
 DROP TRIGGER IF EXISTS trg_order_items_ai_deduct_stock;
 
