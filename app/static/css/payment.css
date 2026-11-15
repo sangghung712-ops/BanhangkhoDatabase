@@ -1,0 +1,54 @@
+/* payment.css — trang thanh toán chuyển khoản bằng mã QR */
+body.pay-page {
+    min-height: 100vh; margin: 0; padding: 32px 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #e0f2fe 0%, #eef2ff 55%, #fdf4ff 100%);
+}
+body.pay-page .flash-wrap { width: 100%; max-width: 460px; padding: 0; margin: 0 0 12px; }
+
+.gateway {
+    width: 100%; max-width: 460px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+.gateway-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 22px; background: #0f172a; color: #fff;
+}
+.gateway-title { font-weight: 700; font-size: 17px; }
+.gateway-sub { font-size: 13px; color: #94a3b8; }
+.gateway-body { padding: 24px 22px 26px; }
+
+.demo-banner {
+    background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+    padding: 10px 14px; font-size: 13px; text-align: center;
+}
+
+.pay-amount { text-align: center; margin-bottom: 16px; }
+.pay-amount .label { color: var(--muted); font-size: 13px; }
+.pay-amount .value { font-size: 34px; font-weight: 700; letter-spacing: -.02em; color: var(--danger); }
+
+.qr-box {
+    width: 250px; max-width: 100%; margin: 0 auto 6px; padding: 10px; background: #fff;
+    border: 1px solid var(--border); border-radius: 14px;
+}
+.qr-box svg { display: block; width: 100%; height: auto; }
+.qr-note { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+
+.bank-info { border-top: 1px dashed var(--border); padding-top: 12px; margin-bottom: 14px; }
+.bank-info .row {
+    display: grid; grid-template-columns: 110px 1fr auto; align-items: center;
+    gap: 10px; padding: 6px 0; font-size: 14px;
+}
+.bank-info .row span { color: var(--muted); }
+.bank-info .row strong { word-break: break-all; }
+.copy-btn {
+    border: 1px solid var(--border); background: #fff; color: var(--primary);
+    border-radius: 6px; padding: 3px 9px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.copy-btn:hover { background: var(--primary-soft); }
+
+.pay-warning {
+    background: var(--primary-soft); border: 1px solid #bfdbfe; color: #1e3a8a;
+    border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px;
+}

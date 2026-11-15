@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Thanh toán đơn #{{ order.order_id }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/payment.css') }}">{% endblock %}
+{% block body_class %}pay-page{% endblock %}
+
+{% block content %}
+<div class="gateway">
+    <div class="gateway-head">
+        <div class="gateway-title">Thanh toán chuyển khoản</div>
+        <div class="gateway-sub">Đơn #{{ order.order_id }}</div>
+    </div>
+
+    <div class="gateway-body">
+        <div class="pay-amount">
+            <div class="label">Số tiền cần chuyển</div>
+            <div class="value">{{ '{:,.0f}'.format(order.total_amount) }} ₫</div>
+        </div>
+
+        {% if qr_svg %}
+        <div class="qr-box">{{ qr_svg|safe }}</div>
+        <div class="qr-note">Mở app ngân hàng, chọn quét QR. Số tiền và nội dung được điền sẵn.</div>
+        {% else %}
+        <div class="demo-banner" style="border-radius:10px; margin-bottom:16px;">
+            Không tạo được mã QR. Hãy chuyển khoản thủ công theo thông tin bên dưới.
+        </div>
+        {% endif %}
+
+        <div class="bank-info">
+            {% if bank.bank_name %}
+            <div class="row"><span>Ngân hàng</span><strong>{{ bank.bank_name }}</strong></div>
+            {% endif %}
+            <div class="row"><span>Số tài khoản</span>
+                <strong>{{ bank.account }}</strong>
+                <button type="button" class="copy-btn" data-copy="{{ bank.account }}">Sao chép</button></div>
+            {% if bank.account_name %}
+            <div class="row"><span>Chủ tài khoản</span><strong>{{ bank.account_name }}</strong></div>
+            {% endif %}
+            <div class="row"><span>Số tiền</span>
+                <strong>{{ '{:,.0f}'.format(order.total_amount) }} ₫</strong>
+                <button type="button" class="copy-btn" data-copy="{{ order.total_amount|int }}">Sao chép</button></div>
+            <div class="row"><span>Nội dung</span>
+                <strong>{{ noi_dung }}</strong>
+                <button type="button" class="copy-btn" data-copy="{{ noi_dung }}">Sao chép</button></div>
+        </div>
+
+        <div class="pay-warning">
+            Giữ nguyên <strong>số tiền</strong> và <strong>nội dung chuyển khoản</strong> để cửa hàng đối chiếu.
+            Sau khi nhận được tiền, cửa hàng sẽ xác nhận và đơn của bạn được xử lý.
+        </div>
+
+        <a class="btn btn-block" href="{{ url_for('customer.order_detail', order_id=order.order_id) }}">
+            Tôi đã chuyển khoản, xem đơn hàng</a>
+        <a class="btn btn-secondary btn-block" style="margin-top:8px;"
+           href="{{ url_for('customer.my_orders') }}">Thanh toán sau</a>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('[data-copy]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(btn.dataset.copy).then(function () {
+                var old = btn.textContent;
+                btn.textContent = 'Đã chép';
+                setTimeout(function () { btn.textContent = old; }, 1500);
+            });
+        });
+    });
+</script>
+{% endblock %}

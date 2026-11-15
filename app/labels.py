@@ -7,7 +7,7 @@ STATUS_VI = {
 PAYMENT_VI = {
     "Unpaid": "Chưa thanh toán", "Paid": "Đã thanh toán", "Refunded": "Đã hoàn tiền",
 }
-PAYMENT_METHOD_VI = {"Cash": "Tiền mặt (khi nhận hàng)", "Online": "Thanh toán trực tuyến"}
+PAYMENT_METHOD_VI = {"Cash": "Tiền mặt (khi nhận hàng)", "Online": "Chuyển khoản ngân hàng (quét QR)"}
 
 # Thông báo lỗi từ procedure/trigger (không dấu) -> tiếng Việt
 LOI_VI = {
@@ -20,7 +20,7 @@ LOI_VI = {
     "Phuong thuc thanh toan khong hop le": "Phương thức thanh toán không hợp lệ",
     "Khach hang khong ton tai": "Không tìm thấy thông tin khách hàng",
     "Khong the chuyen sang trang thai nay": "Trạng thái đơn hàng đã thay đổi, không thể thực hiện thao tác này",
-    "Don Online chua thanh toan, khong the hoan thanh": "Đơn thanh toán trực tuyến cần được cửa hàng xác nhận đã nhận tiền trước khi hoàn thành",
+    "Don Online chua thanh toan, khong the hoan thanh": "Đơn chuyển khoản cần được cửa hàng xác nhận đã nhận tiền trước khi hoàn thành",
 }
 
 

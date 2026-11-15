@@ -11,12 +11,6 @@
                 <option value="{{ k }}" {% if k == status %}selected{% endif %}>{{ v }}</option>
             {% endfor %}
         </select>
-        <input class="input" type="date" name="from" value="{{ date_from }}" title="Từ ngày">
-        <input class="input" type="date" name="to" value="{{ date_to }}" title="Đến ngày">
-        <button class="btn btn-sm" type="submit">Lọc</button>
-        {% if status or date_from or date_to %}
-        <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.orders') }}">Xóa lọc</a>
-        {% endif %}
     </form>
 </div>
 
@@ -33,16 +27,30 @@
     <tbody>
     {% for r in rows %}
     {% set o = r.order %}
+    {# Đơn chuyển khoản chưa nhận được tiền và còn đang xử lý #}
+    {% set cho_nhan_tien = o.payment_method.value == 'Online' and o.payment_status.value == 'Unpaid'
+                           and o.order_status.value in ('Pending', 'Confirmed', 'Shipping') %}
+    {% set pay_cls = {'Paid': 'Completed', 'Unpaid': 'Pending', 'Refunded': 'Cancelled'}[o.payment_status.value] %}
+    {% set so_tien = '{:,.0f}'.format(o.total_amount) %}
     <tr>
         <td><a href="{{ url_for('admin.order_detail', order_id=o.order_id) }}"><strong>#{{ o.order_id }}</strong></a></td>
         <td>{{ o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date }}</td>
         <td>{{ r.customer_name }}<br><span class="muted">{{ r.customer_phone }}</span></td>
         <td class="num">{{ '{:,.0f}'.format(o.total_amount) }} ₫</td>
-        <td>{{ o.payment_method.value }}<br><span class="muted">{{ PAYMENT_VI[o.payment_status.value] }}</span></td>
+        <td>
+            {{ 'Chuyển khoản' if o.payment_method.value == 'Online' else 'Tiền mặt' }}<br>
+            <span class="badge {{ pay_cls }}">{{ PAYMENT_VI[o.payment_status.value] }}</span>
+        </td>
         <td><span class="badge {{ o.order_status.value }}">{{ STATUS_VI[o.order_status.value] }}</span></td>
         <td>
             <div class="actions">
-            {% for s in r.actions %}
+            {% if cho_nhan_tien %}
+                <form class="inline-form" method="POST" action="{{ url_for('admin.order_mark_paid', order_id=o.order_id) }}">
+                    <button class="btn btn-sm" type="submit"
+                            onclick="return confirm('Xác nhận đã nhận đủ {{ '{:,.0f}'.format(o.total_amount) }} ₫ cho đơn #{{ o.order_id }} (nội dung DH{{ o.order_id }})?')">Đã nhận tiền</button>
+                </form>
+            {% endif %}
+            {% for s in r.actions if s !='Completed' %}
                 <form class="inline-form" method="POST" action="{{ url_for('admin.order_status', order_id=o.order_id) }}">
                     <input type="hidden" name="new_status" value="{{ s }}">
                     <button class="btn btn-sm {{ 'btn-danger' if s == 'Cancelled' else 'btn-success' if s == 'Completed' else '' }}"
@@ -51,7 +59,7 @@
                         {{ ACTION_VI[s] }}</button>
                 </form>
             {% else %}
-                <span class="muted">—</span>
+                {% if not cho_nhan_tien %}<span class="muted">—</span>{% endif %}
             {% endfor %}
             </div>
         </td>

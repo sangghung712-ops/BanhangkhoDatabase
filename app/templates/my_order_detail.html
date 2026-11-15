@@ -4,6 +4,8 @@
 {% block page %}
 {# Đơn Online mà cửa hàng chưa xác nhận đã nhận tiền thì chưa hoàn thành được #}
 {% set cho_thanh_toan = order.payment_method.value == 'Online' and order.payment_status.value != 'Paid' %}
+{% set co_the_thanh_toan = order.payment_method.value == 'Online' and order.payment_status.value == 'Unpaid'
+                          and order.order_status.value in ('Pending', 'Confirmed', 'Shipping') %}
 
 <div class="page-header">
     <h1>Đơn hàng #{{ order.order_id }}</h1>
@@ -13,8 +15,7 @@
 {% if order.order_status.value == 'Shipping' %}
 <div class="flash">
     {% if cho_thanh_toan %}
-        Đơn đang được giao. Đơn thanh toán trực tuyến cần được cửa hàng xác nhận đã nhận tiền
-        trước khi bạn có thể xác nhận hoàn thành.
+        Đơn đang được giao. Cửa hàng cần xác nhận đã nhận được tiền chuyển khoản trước khi bạn có thể xác nhận đã nhận hàng.
     {% else %}
         Đơn đang được giao. Khi nhận được hàng, hãy bấm <strong>Đã nhận hàng</strong> để hoàn tất đơn.
     {% endif %}
@@ -64,6 +65,10 @@
         <button class="btn btn-danger" type="submit"
                 onclick="return confirm('Hủy đơn #{{ order.order_id }}?')">Hủy đơn</button>
     </form>
+    {% endif %}
+
+    {% if co_the_thanh_toan %}
+    <a class="btn" href="{{ url_for('customer.order_pay', order_id=order.order_id) }}">Thanh toán ngay</a>
     {% endif %}
 
     {% if order.order_status.value == 'Shipping' and not cho_thanh_toan %}

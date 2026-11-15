@@ -3,10 +3,22 @@
 
 {% block page %}
 {% set o = data.order %}
+{% set cho_nhan_tien = o.payment_method.value == 'Online' and o.payment_status.value == 'Unpaid'
+                       and o.order_status.value in ('Pending', 'Confirmed', 'Shipping') %}
+{% set pay_cls = {'Paid': 'Completed', 'Unpaid': 'Pending', 'Refunded': 'Cancelled'}[o.payment_status.value] %}
+
 <div class="page-header">
     <h1>Đơn hàng #{{ o.order_id }}</h1>
     <span class="badge {{ o.order_status.value }}">{{ STATUS_VI[o.order_status.value] }}</span>
 </div>
+
+{% if cho_nhan_tien %}
+<div class="flash">
+    Đơn chuyển khoản <strong>chưa xác nhận nhận tiền</strong>. Kiểm tra app ngân hàng xem có khoản
+    <strong>{{ '{:,.0f}'.format(o.total_amount) }} ₫</strong> với nội dung <strong>DH{{ o.order_id }}</strong>,
+    rồi bấm <em>Đã nhận tiền</em> ở cuối trang.
+</div>
+{% endif %}
 
 <div class="card">
     <h3>Thông tin đơn</h3>
@@ -18,8 +30,12 @@
         <tr><th>Ngày đặt</th><td>{{ o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date }}</td></tr>
         <tr><th>Ngày giao</th><td>{{ o.shipping_date.strftime('%d/%m/%Y %H:%M') if o.shipping_date else '—' }}</td></tr>
         <tr><th>Thanh toán</th>
-            <td>{{ o.payment_method.value }} · {{ PAYMENT_VI[o.payment_status.value] }}
-                {% if o.payment_date %}({{ o.payment_date.strftime('%d/%m/%Y %H:%M') }}){% endif %}</td></tr>
+            <td>{{ 'Chuyển khoản ngân hàng' if o.payment_method.value == 'Online' else 'Tiền mặt' }}
+                · <span class="badge {{ pay_cls }}">{{ PAYMENT_VI[o.payment_status.value] }}</span>
+                {% if o.payment_date %}<span class="muted">({{ o.payment_date.strftime('%d/%m/%Y %H:%M') }})</span>{% endif %}</td></tr>
+        {% if o.payment_method.value == 'Online' %}
+        <tr><th>Nội dung chuyển khoản</th><td><strong>DH{{ o.order_id }}</strong></td></tr>
+        {% endif %}
     </table>
 </div>
 
@@ -47,7 +63,15 @@
 
 <div class="order-actions">
     <a class="btn btn-secondary" href="{{ url_for('admin.orders') }}">← Danh sách đơn</a>
-    {% for s in data.actions %}
+
+    {% if cho_nhan_tien %}
+    <form class="inline-form" method="POST" action="{{ url_for('admin.order_mark_paid', order_id=o.order_id) }}">
+        <button class="btn btn-sm" type="submit"
+        onclick="return confirm('Xác nhận đã nhận đủ {{ so_tien }} ₫ cho đơn #{{ o.order_id }} (nội dung DH{{ o.order_id }})?')">Đã nhận tiền</button>
+    </form>
+    {% endif %}
+
+    {% for s in data.actions if s !='Completed' %}
     <form class="inline-form" method="POST" action="{{ url_for('admin.order_status', order_id=o.order_id) }}">
         <input type="hidden" name="new_status" value="{{ s }}">
         <button class="btn {{ 'btn-danger' if s == 'Cancelled' else 'btn-success' if s == 'Completed' else '' }}" type="submit"

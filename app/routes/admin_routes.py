@@ -224,6 +224,9 @@ def order_detail(order_id):
 @yeu_cau_vai_tro("Admin")
 def order_status(order_id):
     new_status = request.form.get("new_status", "")
+    if new_status == "Completed":
+        flash("Chỉ khách hàng mới có thể xác nhận đã nhận hàng")
+        return redirect(request.referrer or url_for("admin.orders"))
     try:
         order_repo.update_status(order_id, new_status)
         flash(f"Đơn #{order_id}: {STATUS_VI.get(new_status, new_status)}")
@@ -277,4 +280,11 @@ from ..services import image_upload
 
 def _upload_dir():
     return os.path.join(current_app.static_folder, "uploads", "products")
-
+@admin_bp.route("/orders/<int:order_id>/mark-paid", methods=["POST"])
+@yeu_cau_vai_tro("Admin")
+def order_mark_paid(order_id):
+    if order_repo.mark_paid(order_id):
+        flash(f"Đã xác nhận nhận tiền đơn #{order_id}")
+    else:
+        flash("Không thể xác nhận: đơn không phải chuyển khoản, đã thanh toán hoặc đã hủy")
+    return redirect(request.referrer or url_for("admin.orders"))

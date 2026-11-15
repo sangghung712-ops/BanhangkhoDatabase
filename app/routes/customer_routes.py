@@ -6,9 +6,9 @@ from flask import (Blueprint, abort, flash, redirect, render_template,
                    request, session, url_for, current_app)
 
 from ..labels import PAYMENT_METHOD_VI, PAYMENT_VI, STATUS_VI, dich_loi
-from ..models import OrderStatus
+from ..models import OrderStatus, PaymentMethod, PaymentStatus
 from ..repositories import customer_repo, order_repo, product_repo
-from ..services import image_upload
+from ..services import image_upload, vietqr
 from ..services.auth import yeu_cau_vai_tro
 
 customer_bp = Blueprint("customer", __name__)
@@ -146,6 +146,8 @@ def checkout():
             session["cart"] = {}
             session.modified = True
             flash(f"Đặt hàng thành công! Mã đơn của bạn là #{order_id}")
+            if form["payment_method"] == "Online":
+                return redirect(url_for("customer.order_pay", order_id=order_id))
             return redirect(url_for("customer.order_detail", order_id=order_id))
 
     return render_template("checkout.html", items=items, total=total,
@@ -189,6 +191,7 @@ def order_cancel(order_id):
         except mysql.connector.Error as e:
             flash(dich_loi(e.msg or str(e)))
     return redirect(url_for("customer.order_detail", order_id=order_id))
+
 @customer_bp.route("/orders/<int:order_id>/received", methods=["POST"])
 @customer_bp.route("/orders/<int:order_id>/received", methods=["POST"])
 @yeu_cau_vai_tro("Customer")
@@ -210,6 +213,7 @@ def order_received(order_id):
         except mysql.connector.Error as e:
             flash(dich_loi(e.msg or str(e)))
     return redirect(url_for("customer.order_detail", order_id=order_id))
+
 @customer_bp.app_context_processor
 def inject_product_image():
     def product_image(product_id):
@@ -220,3 +224,66 @@ def inject_product_image():
         version = int(os.path.getmtime(os.path.join(folder, name)))
         return url_for("static", filename=f"uploads/products/{name}", v=version)
     return {"product_image": product_image}
+
+@customer_bp.route("/orders/<int:order_id>/pay")
+@yeu_cau_vai_tro("Customer")
+def order_pay(order_id):
+    order = _don_cua_toi(order_id)
+    if order is None:
+        flash("Không tìm thấy đơn hàng")
+        return redirect(url_for("customer.my_orders"))
+    if not _can_pay(order):
+        flash("Đơn này không cần hoặc không thể thanh toán chuyển khoản")
+        return redirect(url_for("customer.order_detail", order_id=order_id))
+
+    bank = vietqr.bank_config()
+    if bank is None:
+        flash("Cửa hàng chưa cấu hình tài khoản nhận tiền, vui lòng liên hệ cửa hàng")
+        return redirect(url_for("customer.order_detail", order_id=order_id))
+
+    noi_dung = f"DH{order.order_id}"
+    try:
+        payload = vietqr.build_payload(bank["bin"], bank["account"],
+                                       order.total_amount, noi_dung)
+        qr_svg = vietqr.qr_svg(payload)
+    except Exception:          # thiếu thư viện segno hoặc cấu hình sai
+        qr_svg = None
+    return render_template("payment_qr.html", order=order, bank=bank,
+                           noi_dung=noi_dung, qr_svg=qr_svg)
+def _don_cua_toi(order_id):
+    """Trả về Order nếu đúng của khách đang đăng nhập, ngược lại None."""
+    customer = _customer()
+    data = order_repo.get_by_id(order_id)
+    order = data["order"] if isinstance(data, dict) else data
+    if order is None or order.customer_id != customer.customer_id:
+        return None
+    return order
+
+
+def _can_pay(order):
+    return (order.payment_method == PaymentMethod.ONLINE
+            and order.payment_status == PaymentStatus.UNPAID
+            and order.order_status in (OrderStatus.PENDING,
+                                       OrderStatus.CONFIRMED,
+                                       OrderStatus.SHIPPING))
+
+
+@customer_bp.route("/orders/<int:order_id>/pay/result", methods=["POST"])
+@yeu_cau_vai_tro("Customer")
+def order_pay_result(order_id):
+    order = _don_cua_toi(order_id)
+    if order is None:
+        flash("Không tìm thấy đơn hàng")
+        return redirect(url_for("customer.my_orders"))
+
+    result = request.form.get("result")
+    if result == "success":
+        if order_repo.mark_paid(order_id):
+            flash(f"Thanh toán thành công đơn #{order_id}!")
+        else:
+            flash("Không thể thanh toán đơn này (đã thanh toán hoặc đã hủy)")
+    elif result == "fail":
+        flash("Thanh toán thất bại. Bạn có thể thử lại bất cứ lúc nào.")
+    else:
+        flash("Bạn đã hủy thanh toán. Đơn vẫn được giữ, bạn có thể thanh toán sau.")
+    return redirect(url_for("customer.order_detail", order_id=order_id))

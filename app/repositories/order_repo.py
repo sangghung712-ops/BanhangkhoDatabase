@@ -203,3 +203,19 @@ def create_from_cart(customer_id, address, payment_method, cart):
     finally:
         cur.close()
         con.close()
+def mark_paid(order_id):
+    """Đánh dấu đơn chuyển khoản đã thanh toán. Trả về True nếu cập nhật được."""
+    con = get_connection()
+    cur = con.cursor()
+    try:
+        cur.execute(
+            "UPDATE orders SET payment_status = 'Paid', payment_date = NOW() "
+            "WHERE order_id = %s AND payment_method = 'Online' "
+            "AND payment_status = 'Unpaid' "
+            "AND order_status IN ('Pending', 'Confirmed', 'Shipping')", (order_id,))
+        con.commit()
+        return cur.rowcount == 1
+    finally:
+        cur.close()
+        con.close()
+        con.close()
