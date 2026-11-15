@@ -32,15 +32,15 @@ INSERT INTO products (product_name, price, category, quantity) VALUES
 -- Am thanh
 ('Tai nghe AirPods 2',              3290000, 'Am thanh',       40),   -- p9
 ('Loa JBL Flip 6',                  2890000, 'Am thanh',       25),   -- p10
-('Tai nghe Sony WH-1000XM5',        6990000, 'Am thanh',        8),   -- p11 (sap het)
-('Loa Bluetooth Xiaomi',             590000, 'Am thanh',        0),   -- p12 (het hang)
+('Tai nghe Sony WH-1000XM5',        6990000, 'Am thanh',        8),   -- p11 
+('Loa Bluetooth Xiaomi',             590000, 'Am thanh',        0),   -- p12 
 -- Phu kien
 ('Sac nhanh Anker 20W',              290000, 'Phu kien',      100),   -- p13
 ('Cap USB-C 1m',                     120000, 'Phu kien',      150),   -- p14
 ('Chuot Logitech M331',              250000, 'Phu kien',       60),   -- p15
-('Ban phim co Keychron K2',         1890000, 'Phu kien',        5),   -- p16 (sap het)
+('Ban phim co Keychron K2',         1890000, 'Phu kien',        5),   -- p16 
 ('Pin du phong Xiaomi 10000mAh',     450000, 'Phu kien',       45),   -- p17
-('The nho SanDisk 128GB',            220000, 'Phu kien',       70),   -- p18 (se ngung ban)
+('The nho SanDisk 128GB',            220000, 'Phu kien',       70),   -- p18 
 -- Man hinh & TV
 ('Man hinh LG 24 inch',             3290000, 'Man hinh & TV',  18),   -- p19
 ('Smart Tivi Samsung 43 inch',      8990000, 'Man hinh & TV',   9);   -- p20
@@ -56,3 +56,65 @@ INSERT INTO orders (customer_id, shipping_address, payment_method)
 VALUES (@c1, '12 Nguyen Hue, Quan 1, TP.HCM', 'Cash');
 SET @o1 = LAST_INSERT_ID();
 INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o1, @p1, 1), (@o1, @p13, 2);
+-- Don 2: Confirmed, Cash
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c2, '45 Le Loi, Hai Chau, Da Nang', 'Cash');
+SET @o2 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o2, @p3, 1), (@o2, @p14, 2);
+CALL cap_nhat_trang_thai_don_hang(@o2, 'Confirmed');
+-- Don 3: Shipping, Cash (dang giao)
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c3, '78 Tran Phu, TP. Tan An, Long An', 'Cash');
+SET @o3 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o3, @p5, 1), (@o3, @p15, 1);
+CALL cap_nhat_trang_thai_don_hang(@o3, 'Confirmed');
+CALL cap_nhat_trang_thai_don_hang(@o3, 'Shipping');
+ -- Don 4: Completed, Cash (thang 9)
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c1, '12 Nguyen Hue, Quan 1, TP.HCM', 'Cash');
+SET @o4 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o4, @p9, 1), (@o4, @p13, 1);
+CALL cap_nhat_trang_thai_don_hang(@o4, 'Confirmed');
+CALL cap_nhat_trang_thai_don_hang(@o4, 'Shipping');
+CALL cap_nhat_trang_thai_don_hang(@o4, 'Completed');
+UPDATE orders SET order_date = '2026-09-10 09:00:00', shipping_date = '2026-09-11 08:30:00',
+                  payment_date = '2026-09-13 15:00:00' WHERE order_id = @o4;
+-- Don 5: Completed, Online da thanh toan (thang 10)
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c4, '23 Hung Vuong, Ninh Kieu, Can Tho', 'Online');
+SET @o5 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o5, @p2, 1), (@o5, @p17, 1);
+UPDATE orders SET payment_status = 'Paid', payment_date = NOW() WHERE order_id = @o5;  -- admin xac nhan da nhan tien
+CALL cap_nhat_trang_thai_don_hang(@o5, 'Completed');
+UPDATE orders SET order_date = '2026-10-05 10:00:00', payment_date = '2026-10-05 10:20:00',
+                  shipping_date = '2026-10-06 14:00:00' WHERE order_id = @o5;
+-- Don 6: Pending, Online chua thanh toan (de thu man hinh QR)
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c2, '45 Le Loi, Hai Chau, Da Nang', 'Online');
+SET @o6 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o6, @p8, 1), (@o6, @p10, 1);
+-- Don 7: Cancelled, Cash (khach huy khi con Pending -> kho duoc hoan lai)
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c4, '23 Hung Vuong, Ninh Kieu, Can Tho', 'Cash');
+SET @o7 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o7, @p4, 1);
+CALL cap_nhat_trang_thai_don_hang(@o7, 'Cancelled');
+-- Don 8: Cancelled, Online da tra tien -> tu chuyen sang Refunded
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c3, '78 Tran Phu, TP. Tan An, Long An', 'Online');
+SET @o8 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o8, @p19, 1);
+UPDATE orders SET payment_status = 'Paid', payment_date = NOW() WHERE order_id = @o8;
+CALL cap_nhat_trang_thai_don_hang(@o8, 'Confirmed');
+-- Don 9: Completed, Cash (thang 10) - khach chua co dia chi trong ho so, nhap luc dat
+INSERT INTO orders (customer_id, shipping_address, payment_method)
+VALUES (@c5, '99 Pasteur, Quan 3, TP.HCM', 'Cash');
+SET @o9 = LAST_INSERT_ID();
+INSERT INTO order_items (order_id, product_id, quantity) VALUES (@o9, @p7, 1), (@o9, @p16, 1);
+CALL cap_nhat_trang_thai_don_hang(@o9, 'Confirmed');
+CALL cap_nhat_trang_thai_don_hang(@o9, 'Shipping');
+CALL cap_nhat_trang_thai_don_hang(@o9, 'Completed');
+UPDATE orders SET order_date = '2026-10-20 13:00:00', shipping_date = '2026-10-21 09:00:00',
+                  payment_date = '2026-10-23 16:30:00' WHERE order_id = @o9;
+-- 4. San pham ngung kinh doanh--
+CALL ngung_kinh_doanh_san_pham(@p18);
