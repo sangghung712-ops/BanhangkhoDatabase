@@ -23,13 +23,14 @@
     {% for p in products %}
     <div class="product-card">
                 {% set img = product_image(p.product_id) %}
-        <div class="product-thumb">
+        <a class="product-thumb" href="{{ url_for('customer.product_detail', product_id=p.product_id) }}">
             {% if img %}<img src="{{ img }}" alt="{{ p.product_name }}" loading="lazy">
             {% else %}{{ p.product_name[0]|upper }}{% endif %}
-        </div>
+        </a>
         <div class="product-body">
             <span class="product-cat">{{ p.category }}</span>
-            <span class="product-name">{{ p.product_name }}</span>
+            <a class="product-name" href="{{ url_for('customer.product_detail', product_id=p.product_id) }}">{{ p.product_name }}</a>
+            <a class="product-more" href="{{ url_for('customer.product_detail', product_id=p.product_id) }}">Xem chi tiết →</a>
             <span class="product-price">{{ '{:,.0f}'.format(p.price) }} ₫</span>
             <span class="product-stock {{ 'out' if p.quantity == 0 else 'low' if p.quantity <= 5 }}">
                 {% if p.quantity == 0 %}Hết hàng

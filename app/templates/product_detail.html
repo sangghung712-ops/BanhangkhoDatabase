@@ -1,0 +1,69 @@
+{% extends "customer_base.html" %}
+{% block title %}{{ product.product_name }}{% endblock %}
+
+{% block page %}
+<div class="breadcrumb">
+    <a href="{{ url_for('customer.shop') }}">Sản phẩm</a><span>›</span>
+    <a href="{{ url_for('customer.shop', category=product.category) }}">{{ product.category }}</a><span>›</span>
+    {{ product.product_name }}
+</div>
+
+<div class="detail-grid">
+    {% set img = product_image(product.product_id) %}
+    <div class="detail-image">
+        {% if img %}<img src="{{ img }}" alt="{{ product.product_name }}">
+        {% else %}{{ product.product_name[0]|upper }}{% endif %}
+    </div>
+
+    <div class="detail-info">
+        <span class="product-cat">{{ product.category }}</span>
+        <h1>{{ product.product_name }}</h1>
+        <div class="detail-price">{{ '{:,.0f}'.format(product.price) }} ₫</div>
+
+        <table class="detail-meta">
+            <tr><th>Mã sản phẩm</th><td>#{{ product.product_id }}</td></tr>
+            <tr><th>Danh mục</th><td>{{ product.category }}</td></tr>
+            <tr><th>Tình trạng</th>
+                <td>
+                    <span class="product-stock {{ 'out' if product.quantity == 0 else 'low' if product.quantity <= 5 }}">
+                        {% if product.quantity == 0 %}Hết hàng
+                        {% elif product.quantity <= 5 %}Chỉ còn {{ product.quantity }} sản phẩm
+                        {% else %}Còn hàng ({{ product.quantity }} sản phẩm){% endif %}
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+        <form class="add-row" method="POST"
+              action="{{ url_for('customer.cart_add', product_id=product.product_id) }}">
+            <input class="input" type="number" name="quantity" value="1" min="1"
+                   max="{{ product.quantity }}" {% if product.quantity == 0 %}disabled{% endif %}>
+            <button class="btn" type="submit" {% if product.quantity == 0 %}disabled{% endif %}>Thêm vào giỏ</button>
+        </form>
+
+        <div class="detail-back">
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('customer.shop') }}">← Quay lại danh sách</a>
+        </div>
+    </div>
+</div>
+
+{% if related %}
+<h2 class="related-title">Sản phẩm cùng danh mục</h2>
+<div class="product-grid">
+    {% for p in related %}
+    <div class="product-card">
+        {% set rimg = product_image(p.product_id) %}
+        <a class="product-thumb" href="{{ url_for('customer.product_detail', product_id=p.product_id) }}">
+            {% if rimg %}<img src="{{ rimg }}" alt="{{ p.product_name }}" loading="lazy">
+            {% else %}{{ p.product_name[0]|upper }}{% endif %}
+        </a>
+        <div class="product-body">
+            <a class="product-name" href="{{ url_for('customer.product_detail', product_id=p.product_id) }}">{{ p.product_name }}</a>
+            <span class="product-price">{{ '{:,.0f}'.format(p.price) }} ₫</span>
+            <a class="product-more" href="{{ url_for('customer.product_detail', product_id=p.product_id) }}">Xem chi tiết →</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

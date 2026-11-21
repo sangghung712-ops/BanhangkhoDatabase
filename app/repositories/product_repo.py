@@ -61,7 +61,13 @@ def get_by_id(product_id):
     rows = _query("SELECT * FROM products WHERE product_id = %s", (product_id,))
     return Product.from_row(rows[0]) if rows else None
 
-
+def get_related(product_id, category, limit=4):
+    """Sản phẩm cùng danh mục đang kinh doanh (trừ chính nó) để gợi ý."""
+    rows = _query("SELECT * FROM products WHERE product_status = 'Active' "
+                  "AND category = %s AND product_id <> %s "
+                  "ORDER BY product_name LIMIT %s",
+                  (category, product_id, limit))
+    return [Product.from_row(r) for r in rows]
 def get_low_stock(threshold=5, limit=5):
     rows = _query("SELECT * FROM products WHERE product_status = 'Active' "
                   "AND quantity <= %s ORDER BY quantity LIMIT %s",

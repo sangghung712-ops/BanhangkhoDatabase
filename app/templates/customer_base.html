@@ -6,7 +6,7 @@
     <div class="navbar-inner">
         <a class="brand" href="{{ url_for('customer.shop') }}">Cửa hàng</a>
         <div class="nav-links">
-            <a class="nav-link {{ 'active' if request.endpoint == 'customer.shop' }}"
+            <a class="nav-link {{ 'active' if request.endpoint in ('customer.shop', 'customer.product_detail') }}"
                href="{{ url_for('customer.shop') }}">Sản phẩm</a>
             <a class="nav-link {{ 'active' if request.endpoint in ('customer.cart', 'customer.checkout') }}"
                href="{{ url_for('customer.cart') }}">Giỏ hàng{% if cart_count %}<span class="count">{{ cart_count }}</span>{% endif %}</a>

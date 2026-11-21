@@ -66,7 +66,16 @@ def shop():
     return render_template("shop.html", products=products,
                            categories=product_repo.get_categories(),
                            keyword=keyword, category=category)
-
+@customer_bp.route("/shop/product/<int:product_id>")
+@yeu_cau_vai_tro("Customer")
+def product_detail(product_id):
+    product = product_repo.get_by_id(product_id)
+    if product is None or not product.is_active():
+        flash("Sản phẩm không tồn tại hoặc đã ngừng kinh doanh")
+        return redirect(url_for("customer.shop"))
+    related = product_repo.get_related(product.product_id, product.category)
+    return render_template("product_detail.html", product=product,
+                           related=related)
 
 @customer_bp.route("/cart/add/<int:product_id>", methods=["POST"])
 @yeu_cau_vai_tro("Customer")
